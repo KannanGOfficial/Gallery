@@ -5,8 +5,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.kannan.gallery.feature.album.presentation.AlbumMediaScreen
 import com.kannan.gallery.feature.album.presentation.AlbumScreen
+import com.kannan.gallery.feature.album.presentation.AlbumTimelineScreen
 import com.kannan.gallery.feature.settings.presentation.SettingsScreen
+import com.kannan.gallery.feature.setup.presentation.SetupScreen
+import com.kannan.gallery.feature.timeline.presentation.TimelineMediaScreen
 import com.kannan.gallery.feature.timeline.presentation.TimelineScreen
 
 @Composable
@@ -22,12 +26,34 @@ fun SetupNavGraph(
         startDestination = startDestination
     ) {
 
-        composable<NavigationScreen.TimeLineScreen> {
-            TimelineScreen()
+        composable<NavigationScreen.SetupScreen> {
+            SetupScreen()
+        }
+
+        composable<NavigationScreen.TimelineScreen> {
+            TimelineScreen(
+                navigateToCallBack = navHostController::navigate
+            )
+        }
+
+        composable<NavigationScreen.TimelineMediaScreen> {
+            TimelineMediaScreen()
         }
 
         composable<NavigationScreen.AlbumScreen> {
-            AlbumScreen()
+            AlbumScreen(
+                navigateToCallBack = navHostController::navigate
+            )
+        }
+
+        composable<NavigationScreen.AlbumTimeLineScreen> {
+            AlbumTimelineScreen(
+                navigateToCallBack = navHostController::navigate
+            )
+        }
+
+        composable<NavigationScreen.AlbumMediaScreen> {
+            AlbumMediaScreen()
         }
 
         composable<NavigationScreen.SettingsScreen> {
