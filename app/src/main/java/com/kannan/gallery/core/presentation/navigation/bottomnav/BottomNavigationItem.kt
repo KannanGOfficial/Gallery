@@ -12,7 +12,7 @@ enum class BottomNavigationItem(
     TIMELINE(
         selectedIcon = R.drawable.timeline_selected,
         unSelectedIcon = R.drawable.timeline_unselected,
-        screen = NavigationScreen.TimeLineScreen
+        screen = NavigationScreen.TimelineScreen
     ),
     ALBUM(
         selectedIcon = R.drawable.album_selected,

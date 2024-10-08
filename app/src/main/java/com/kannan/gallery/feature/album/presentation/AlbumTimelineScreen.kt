@@ -12,25 +12,25 @@ import com.kannan.gallery.core.presentation.navigation.NavigationScreen
 import com.kannan.gallery.ui.theme.GalleryTheme
 
 @Composable
-fun AlbumScreen(
+fun AlbumTimelineScreen(
     modifier: Modifier = Modifier,
     navigateToCallBack: (NavigationScreen) -> Unit,
 ) {
     Box(
         modifier = modifier
             .then(Modifier.fillMaxSize())
-            .clickable { navigateToCallBack.invoke(NavigationScreen.AlbumTimeLineScreen) },
+            .clickable { navigateToCallBack.invoke(NavigationScreen.AlbumMediaScreen) },
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "AlbumScreen")
+        Text(text = "AlbumTimelineScreen")
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun AlbumScreenPreview() {
+private fun AlbumTimelineScreenPreview() {
     GalleryTheme {
-        AlbumScreen(
+        AlbumTimelineScreen(
             navigateToCallBack = {}
         )
     }
