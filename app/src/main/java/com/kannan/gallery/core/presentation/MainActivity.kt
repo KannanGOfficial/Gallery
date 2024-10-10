@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,6 +22,8 @@ import com.kannan.gallery.core.presentation.navigation.NavigationScreen
 import com.kannan.gallery.core.presentation.navigation.SetupNavGraph
 import com.kannan.gallery.core.presentation.navigation.bottomnav.SetupBottomNavigation
 import com.kannan.gallery.ui.theme.GalleryTheme
+import com.kannan.gallery.ui.theme.navigateBottomBar
+import com.kannan.gallery.utils.ext.checkPermission
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,13 +43,16 @@ class MainActivity : ComponentActivity() {
                         uiAction.invoke(MainUiAction.OnNavDestinationChanged(route))
                     }
                 }
+                val startDestination = remember {
+                    getStartDestination()
+                }
 
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         SetupBottomNavigation(
                             currentDestination = navBackStackEntry?.destination?.route,
                             shouldShowBottomBar = uiState.shouldShowBottomBar,
-                            onClickedBottomNavigationItem = { navHostController.navigate(it.screen) }
+                            onClickedBottomNavigationItem = { navHostController.navigateBottomBar(it.screen) }
                         )
                     }) { innerPadding ->
 
@@ -57,11 +63,17 @@ class MainActivity : ComponentActivity() {
 
                     SetupNavGraph(
                         navHostController = navHostController,
-                        startDestination = NavigationScreen.TimelineScreen,
+                        startDestination = startDestination,
                         modifier = Modifier.padding(bottom = bottomPadding)
                     )
                 }
             }
         }
     }
+
+    private fun getStartDestination() =
+        when (checkPermission()) {
+            true -> NavigationScreen.TimelineScreen
+            false -> NavigationScreen.SetupScreen
+        }
 }

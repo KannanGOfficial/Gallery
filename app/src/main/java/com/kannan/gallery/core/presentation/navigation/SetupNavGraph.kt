@@ -1,7 +1,11 @@
 package com.kannan.gallery.core.presentation.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,8 +14,11 @@ import com.kannan.gallery.feature.album.presentation.AlbumScreen
 import com.kannan.gallery.feature.album.presentation.AlbumTimelineScreen
 import com.kannan.gallery.feature.settings.presentation.SettingsScreen
 import com.kannan.gallery.feature.setup.presentation.SetupScreen
+import com.kannan.gallery.feature.setup.presentation.SetupScreenViewModel
 import com.kannan.gallery.feature.timeline.presentation.TimelineMediaScreen
 import com.kannan.gallery.feature.timeline.presentation.TimelineScreen
+import com.kannan.gallery.ui.theme.navigateFromSetupScreen
+import com.kannan.gallery.ui.theme.navigateTo
 
 @Composable
 fun SetupNavGraph(
@@ -27,12 +34,20 @@ fun SetupNavGraph(
     ) {
 
         composable<NavigationScreen.SetupScreen> {
-            SetupScreen()
+            val viewModel = viewModel<SetupScreenViewModel>()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            SetupScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiEvent = viewModel.uiEvent,
+                uiState = uiState,
+                uiAction = viewModel::onUiAction,
+                navigateToCallback = navHostController::navigateFromSetupScreen
+            )
         }
 
         composable<NavigationScreen.TimelineScreen> {
             TimelineScreen(
-                navigateToCallBack = navHostController::navigate
+                navigateToCallBack = navHostController::navigateTo
             )
         }
 
@@ -42,13 +57,13 @@ fun SetupNavGraph(
 
         composable<NavigationScreen.AlbumScreen> {
             AlbumScreen(
-                navigateToCallBack = navHostController::navigate
+                navigateToCallBack = navHostController::navigateTo
             )
         }
 
         composable<NavigationScreen.AlbumTimeLineScreen> {
             AlbumTimelineScreen(
-                navigateToCallBack = navHostController::navigate
+                navigateToCallBack = navHostController::navigateTo
             )
         }
 
