@@ -1,6 +1,3 @@
 <resources>
     <string name="app_name">Gallery</string>
-    <string name="action_cancel">Cancel</string>
-    <string name="get_started">Get Started</string>
-    <string name="allow_to_manage_files">Allow to Manage All Files</string>
 </resources>
