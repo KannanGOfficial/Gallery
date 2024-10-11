@@ -60,11 +60,12 @@ class MainActivity : ComponentActivity() {
                         targetValue = if (uiState.shouldShowBottomBar) innerPadding.calculateBottomPadding() else 0.dp,
                         label = "bottom-padding"
                     )
+                    val topPadding = innerPadding.calculateTopPadding()
 
                     SetupNavGraph(
                         navHostController = navHostController,
                         startDestination = startDestination,
-                        modifier = Modifier.padding(bottom = bottomPadding)
+                        modifier = Modifier.padding(bottom = bottomPadding, top = topPadding)
                     )
                 }
             }
