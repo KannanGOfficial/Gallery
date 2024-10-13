@@ -18,7 +18,7 @@ fun TimelineMediaScreen(
     timelineMediaList: List<Media>
 ) {
     val pagerState = rememberPagerState(
-        initialPage = uiState.scrollToPosition,
+        initialPage = uiState.initialPagerPosition,
         pageCount = { timelineMediaList.size }
     )
 

@@ -15,17 +15,17 @@ class TimelineMediaScreenViewModel(savedStateHandle: SavedStateHandle) : ViewMod
 
     init {
         val timelineMediaScreen: NavigationScreen.TimelineMediaScreen = savedStateHandle.toRoute()
-        updateScrollToPositionUiState(timelineMediaScreen.scrollToPosition)
+        updateScrollToPositionUiState(timelineMediaScreen.initialPagerPosition)
     }
 
     private fun updateScrollToPositionUiState(scrollToPosition: Int) =
         _uiState.update {
             it.copy(
-                scrollToPosition = scrollToPosition
+                initialPagerPosition = scrollToPosition
             )
         }
 }
 
 data class TimelineMediaScreenUiState(
-    val scrollToPosition: Int = 0
+    val initialPagerPosition: Int = 0
 )
