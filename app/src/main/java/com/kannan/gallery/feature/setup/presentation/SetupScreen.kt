@@ -1,6 +1,7 @@
 package com.kannan.gallery.feature.setup.presentation
 
 import android.app.Activity
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
@@ -51,7 +52,7 @@ fun SetupScreen(
     }
 
     SetupScreenContent(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         uiState = uiState,
         uiAction = uiAction
     )

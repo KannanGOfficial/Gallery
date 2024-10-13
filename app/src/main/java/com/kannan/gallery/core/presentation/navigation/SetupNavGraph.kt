@@ -1,6 +1,5 @@
 package com.kannan.gallery.core.presentation.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -9,11 +8,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.kannan.gallery.core.presentation.sharedViewModel.AlbumSharedViewModel
 import com.kannan.gallery.core.presentation.sharedViewModel.TimelineSharedViewModel
 import com.kannan.gallery.feature.album.presentation.AlbumMediaScreen
+import com.kannan.gallery.feature.album.presentation.AlbumMediaScreenViewModel
 import com.kannan.gallery.feature.album.presentation.AlbumScreen
 import com.kannan.gallery.feature.album.presentation.AlbumScreenViewModel
 import com.kannan.gallery.feature.album.presentation.AlbumTimelineScreen
+import com.kannan.gallery.feature.album.presentation.AlbumTimelineScreenViewModel
 import com.kannan.gallery.feature.settings.presentation.SettingsScreen
 import com.kannan.gallery.feature.setup.presentation.SetupScreen
 import com.kannan.gallery.feature.setup.presentation.SetupScreenViewModel
@@ -31,6 +33,7 @@ fun SetupNavGraph(
     startDestination: NavigationScreen
 ) {
     val timelineSharedViewModel = viewModel<TimelineSharedViewModel>()
+    val albumSharedViewModel = viewModel<AlbumSharedViewModel>()
 
     NavHost(
         navController = navHostController,
@@ -42,7 +45,6 @@ fun SetupNavGraph(
             val viewModel = viewModel<SetupScreenViewModel>()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             SetupScreen(
-                modifier = Modifier.fillMaxSize(),
                 uiEvent = viewModel.uiEvent,
                 uiState = uiState,
                 uiAction = viewModel::onUiAction,
@@ -66,7 +68,6 @@ fun SetupNavGraph(
             val viewModel = viewModel<TimelineMediaScreenViewModel>()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             TimelineMediaScreen(
-                modifier = modifier,
                 uiState = uiState,
                 timelineMediaList = timelineSharedViewModel.timelineMediaList
             )
@@ -84,13 +85,24 @@ fun SetupNavGraph(
         }
 
         composable<NavigationScreen.AlbumTimeLineScreen> {
+            val viewModel = viewModel<AlbumTimelineScreenViewModel>()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             AlbumTimelineScreen(
-                navigateToCallBack = navHostController::navigateTo
+                uiState = uiState,
+                uiAction = viewModel::onUiAction,
+                uiEvent = viewModel.uiEvent,
+                navigateToCallBack = navHostController::navigateTo,
+                albumMediaList = albumSharedViewModel.timelineMediaList
             )
         }
 
         composable<NavigationScreen.AlbumMediaScreen> {
-            AlbumMediaScreen()
+            val viewModel = viewModel<AlbumMediaScreenViewModel>()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            AlbumMediaScreen(
+                uiState = uiState,
+                albumMediaList = albumSharedViewModel.timelineMediaList
+            )
         }
 
         composable<NavigationScreen.SettingsScreen> {

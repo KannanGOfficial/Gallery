@@ -11,16 +11,16 @@ sealed interface NavigationScreen {
     data object TimelineScreen : NavigationScreen
 
     @Serializable
-    data class TimelineMediaScreen(val scrollToPosition: Int) : NavigationScreen
+    data class TimelineMediaScreen(val initialPagerPosition: Int) : NavigationScreen
 
     @Serializable
     data object AlbumScreen : NavigationScreen
 
     @Serializable
-    data object AlbumTimeLineScreen : NavigationScreen
+    data class AlbumTimeLineScreen(val albumName: String) : NavigationScreen
 
     @Serializable
-    data object AlbumMediaScreen : NavigationScreen
+    data class AlbumMediaScreen(val initialPagerPosition: Int) : NavigationScreen
 
     @Serializable
     data object SettingsScreen : NavigationScreen

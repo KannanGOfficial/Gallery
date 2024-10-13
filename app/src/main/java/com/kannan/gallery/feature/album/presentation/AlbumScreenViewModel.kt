@@ -21,6 +21,10 @@ class AlbumScreenViewModel : ViewModel() {
         initialValue = AlbumScreenUiState()
     )
 
+    init {
+        updateAlbumListUiState(albumList1)
+    }
+
     private val _uiEvent = Channel<AlbumScreenUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -28,7 +32,7 @@ class AlbumScreenViewModel : ViewModel() {
         when (action) {
             is AlbumScreenUiAction.OnAlbumClicked -> sendEvent(
                 AlbumScreenUiEvent.NavigateTo(
-                    NavigationScreen.AlbumTimeLineScreen
+                    NavigationScreen.AlbumTimeLineScreen(action.albumName)
                 )
             )
         }
@@ -48,11 +52,11 @@ class AlbumScreenViewModel : ViewModel() {
 }
 
 data class AlbumScreenUiState(
-    val albumList: List<Album> = albumList1
+    val albumList: List<Album> = emptyList()
 )
 
 sealed interface AlbumScreenUiAction {
-    data class OnAlbumClicked(val albumId: Long) : AlbumScreenUiAction
+    data class OnAlbumClicked(val albumName: String) : AlbumScreenUiAction
 }
 
 sealed interface AlbumScreenUiEvent {
