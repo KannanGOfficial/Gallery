@@ -12,69 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-val albumList1 = listOf(
-    Album(
-        id = 0,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 1,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 2,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 3,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 4,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 5,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 6,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 7,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 8,
-        name = "Camera",
-        coverImage = ""
-    ),
-    Album(
-        id = 9,
-        name = "Camera",
-        coverImage = ""
-    ),
-)
-
 class AlbumScreenViewModel : ViewModel() {
-
-    init {
-        /*val albumList = listOf(Album(
-            id = 1,
-            name = "Album",
-            coverImage = ""
-        ))
-        updateAlbumListUiState(albumList)*/
-    }
 
     private val _uiState = MutableStateFlow(AlbumScreenUiState())
     val uiState = _uiState.stateIn(
@@ -119,5 +57,13 @@ sealed interface AlbumScreenUiAction {
 
 sealed interface AlbumScreenUiEvent {
     data class NavigateTo(val navigationScreen: NavigationScreen) : AlbumScreenUiEvent
+}
+
+val albumList1 = (0..10).map { index ->
+    Album(
+        id = index.toLong(),
+        name = "Camera",
+        coverImage = ""
+    )
 }
 
