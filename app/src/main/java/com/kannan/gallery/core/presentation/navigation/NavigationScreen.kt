@@ -11,7 +11,7 @@ sealed interface NavigationScreen {
     data object TimelineScreen : NavigationScreen
 
     @Serializable
-    data object TimelineMediaScreen : NavigationScreen
+    data class TimelineMediaScreen(val scrollToPosition: Int) : NavigationScreen
 
     @Serializable
     data object AlbumScreen : NavigationScreen
