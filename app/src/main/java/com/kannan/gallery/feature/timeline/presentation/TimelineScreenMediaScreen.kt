@@ -1,5 +1,10 @@
 package com.kannan.gallery.feature.timeline.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -11,11 +16,13 @@ import com.kannan.gallery.feature.timeline.domain.Media
 import com.kannan.gallery.feature.timeline.presentation.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun TimelineMediaScreen(
+fun SharedTransitionScope.TimelineMediaScreen(
     modifier: Modifier = Modifier,
     uiState: TimelineMediaScreenUiState,
-    timelineMediaList: List<Media>
+    timelineMediaList: List<Media>,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val pagerState = rememberPagerState(
         initialPage = uiState.initialPagerPosition,
@@ -31,18 +38,28 @@ fun TimelineMediaScreen(
 
         Thumbnail(
             data = data.uri,
-            contentDescription = data.uri
+            contentDescription = data.uri,
+            modifier = Modifier.sharedElement(
+                state = rememberSharedContentState(key = "image/ ${data.id}"),
+                animatedVisibilityScope = animatedVisibilityScope
+            )
         )
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun TimelineMediaScreenPreview() {
     GalleryTheme {
-        TimelineMediaScreen(
-            uiState = TimelineMediaScreenUiState(),
-            timelineMediaList = dummyTimelineMediaList
-        )
+        SharedTransitionLayout {
+            AnimatedVisibility(true) {
+                TimelineMediaScreen(
+                    uiState = TimelineMediaScreenUiState(),
+                    timelineMediaList = dummyTimelineMediaList,
+                    animatedVisibilityScope = this
+                )
+            }
+        }
     }
 }

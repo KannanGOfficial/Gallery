@@ -1,5 +1,7 @@
 package com.kannan.gallery.core.presentation.navigation
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -26,6 +28,7 @@ import com.kannan.gallery.feature.timeline.presentation.TimelineScreenViewModel
 import com.kannan.gallery.ui.theme.navigateFromSetupScreen
 import com.kannan.gallery.ui.theme.navigateTo
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SetupNavGraph(
     modifier: Modifier = Modifier,
@@ -35,78 +38,86 @@ fun SetupNavGraph(
     val timelineSharedViewModel = viewModel<TimelineSharedViewModel>()
     val albumSharedViewModel = viewModel<AlbumSharedViewModel>()
 
-    NavHost(
-        navController = navHostController,
-        modifier = modifier,
-        startDestination = startDestination
+    SharedTransitionLayout(
+        modifier = modifier
     ) {
 
-        composable<NavigationScreen.SetupScreen> {
-            val viewModel = viewModel<SetupScreenViewModel>()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            SetupScreen(
-                uiEvent = viewModel.uiEvent,
-                uiState = uiState,
-                uiAction = viewModel::onUiAction,
-                navigateToCallback = navHostController::navigateFromSetupScreen
-            )
-        }
+        NavHost(
+            navController = navHostController,
+            startDestination = startDestination
+        ) {
 
-        composable<NavigationScreen.TimelineScreen> {
-            val viewModel = viewModel<TimelineScreenViewModel>()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            TimelineScreen(
-                uiState = uiState,
-                uiAction = viewModel::onUiAction,
-                uiEvent = viewModel.uiEvent,
-                timelineMedia = timelineSharedViewModel.timelineMediaList,
-                navigateToCallBack = navHostController::navigateTo
-            )
-        }
+            composable<NavigationScreen.SetupScreen> {
+                val viewModel = viewModel<SetupScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                SetupScreen(
+                    uiEvent = viewModel.uiEvent,
+                    uiState = uiState,
+                    uiAction = viewModel::onUiAction,
+                    navigateToCallback = navHostController::navigateFromSetupScreen
+                )
+            }
 
-        composable<NavigationScreen.TimelineMediaScreen> { backStackEntry ->
-            val viewModel = viewModel<TimelineMediaScreenViewModel>()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            TimelineMediaScreen(
-                uiState = uiState,
-                timelineMediaList = timelineSharedViewModel.timelineMediaList
-            )
-        }
+            composable<NavigationScreen.TimelineScreen> {
+                val viewModel = viewModel<TimelineScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                TimelineScreen(
+                    uiState = uiState,
+                    uiAction = viewModel::onUiAction,
+                    uiEvent = viewModel.uiEvent,
+                    timelineMedia = timelineSharedViewModel.timelineMediaList,
+                    navigateToCallBack = navHostController::navigateTo,
+                    animatedVisibilityScope = this@composable
+                )
+            }
 
-        composable<NavigationScreen.AlbumScreen> {
-            val viewModel = viewModel<AlbumScreenViewModel>()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            AlbumScreen(
-                uiState = uiState,
-                uiEvent = viewModel.uiEvent,
-                uiAction = viewModel::onUiAction,
-                navigateToCallBack = navHostController::navigateTo
-            )
-        }
+            composable<NavigationScreen.TimelineMediaScreen> { backStackEntry ->
+                val viewModel = viewModel<TimelineMediaScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                TimelineMediaScreen(
+                    uiState = uiState,
+                    timelineMediaList = timelineSharedViewModel.timelineMediaList,
+                    animatedVisibilityScope = this@composable
+                )
+            }
 
-        composable<NavigationScreen.AlbumTimeLineScreen> {
-            val viewModel = viewModel<AlbumTimelineScreenViewModel>()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            AlbumTimelineScreen(
-                uiState = uiState,
-                uiAction = viewModel::onUiAction,
-                uiEvent = viewModel.uiEvent,
-                navigateToCallBack = navHostController::navigateTo,
-                albumMediaList = albumSharedViewModel.timelineMediaList
-            )
-        }
+            composable<NavigationScreen.AlbumScreen> {
+                val viewModel = viewModel<AlbumScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                AlbumScreen(
+                    uiState = uiState,
+                    uiEvent = viewModel.uiEvent,
+                    uiAction = viewModel::onUiAction,
+                    navigateToCallBack = navHostController::navigateTo
+                )
+            }
 
-        composable<NavigationScreen.AlbumMediaScreen> {
-            val viewModel = viewModel<AlbumMediaScreenViewModel>()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            AlbumMediaScreen(
-                uiState = uiState,
-                albumMediaList = albumSharedViewModel.timelineMediaList
-            )
-        }
+            composable<NavigationScreen.AlbumTimeLineScreen> {
+                val viewModel = viewModel<AlbumTimelineScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                AlbumTimelineScreen(
+                    uiState = uiState,
+                    uiAction = viewModel::onUiAction,
+                    uiEvent = viewModel.uiEvent,
+                    navigateToCallBack = navHostController::navigateTo,
+                    albumMediaList = albumSharedViewModel.timelineMediaList,
+                    animatedVisibilityScope = this
+                )
+            }
 
-        composable<NavigationScreen.SettingsScreen> {
-            SettingsScreen()
+            composable<NavigationScreen.AlbumMediaScreen> {
+                val viewModel = viewModel<AlbumMediaScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                AlbumMediaScreen(
+                    uiState = uiState,
+                    albumMediaList = albumSharedViewModel.timelineMediaList,
+                    animatedVisibilityScope = this
+                )
+            }
+
+            composable<NavigationScreen.SettingsScreen> {
+                SettingsScreen()
+            }
         }
     }
 }
