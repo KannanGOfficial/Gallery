@@ -1,5 +1,11 @@
 package com.kannan.gallery.feature.timeline.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,14 +22,16 @@ import com.kannan.gallery.utils.ext.CollectAsEffect
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun TimelineScreen(
+fun SharedTransitionScope.TimelineScreen(
     modifier: Modifier = Modifier,
     navigateToCallBack: (NavigationScreen) -> Unit,
     uiState: TimelineScreenUiState,
     uiAction: ((TimelineScreenUiAction) -> Unit),
     uiEvent: Flow<TimelineScreenUiEvent>,
-    timelineMedia: List<Media>
+    timelineMedia: List<Media>,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 
     uiEvent.CollectAsEffect { event ->
@@ -33,7 +41,7 @@ fun TimelineScreen(
     }
 
     LazyVerticalGrid(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         columns = GridCells.Fixed(3)
     ) {
         items(
@@ -41,7 +49,12 @@ fun TimelineScreen(
         ) { index: Int ->
             val data = timelineMedia[index]
             Thumbnail(
-                modifier = Modifier.size(200.dp),
+                modifier = Modifier
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "image/ ${data.id}"),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
+                    .size(200.dp),
                 data = data.uri,
                 contentDescription = data.uri,
                 onClick = {
@@ -52,16 +65,22 @@ fun TimelineScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun TimelineScreenPreview() {
     GalleryTheme {
-        TimelineScreen(
-            uiAction = {},
-            uiEvent = emptyFlow(),
-            uiState = TimelineScreenUiState(),
-            timelineMedia = dummyTimelineMediaList,
-            navigateToCallBack = {}
-        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                TimelineScreen(
+                    uiAction = {},
+                    uiEvent = emptyFlow(),
+                    uiState = TimelineScreenUiState(),
+                    timelineMedia = dummyTimelineMediaList,
+                    navigateToCallBack = {},
+                    animatedVisibilityScope = this
+                )
+            }
+        }
     }
 }
