@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
+//Testing commit
 android {
     namespace = "com.kannan.gallery"
     compileSdk = 34
