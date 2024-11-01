@@ -1,8 +1,10 @@
 package com.kannan.gallery.core.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kannan.gallery.core.presentation.navigation.bottomnav.BottomNavigationItem
+import com.kannan.gallery.utils.ext.getRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -25,8 +27,10 @@ class MainViewModel : ViewModel() {
 
     private fun setBottomBarVisibility(route: String) {
         val shouldShowBottomBar = BottomNavigationItem.entries.any {
-            it.screen::class.qualifiedName == route
+            it.screen::class.getRoute() == route
         }
+
+        Log.d("NavDestination :", "")
         updateShouldShowBottomBarUiState(shouldShowBottomBar)
     }
 

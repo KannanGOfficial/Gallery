@@ -32,7 +32,7 @@ class AlbumScreenViewModel : ViewModel() {
         when (action) {
             is AlbumScreenUiAction.OnAlbumClicked -> sendEvent(
                 AlbumScreenUiEvent.NavigateTo(
-                    NavigationScreen.AlbumTimeLineScreen(action.albumName)
+                    NavigationScreen.MemoriesScreen(action.albumName)
                 )
             )
         }

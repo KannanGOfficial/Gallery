@@ -24,4 +24,7 @@ sealed interface NavigationScreen {
 
     @Serializable
     data object SettingsScreen : NavigationScreen
+
+    @Serializable
+    data class MemoriesScreen(val albumName: String? = null) : NavigationScreen
 }

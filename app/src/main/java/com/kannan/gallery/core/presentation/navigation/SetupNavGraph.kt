@@ -18,6 +18,8 @@ import com.kannan.gallery.feature.album.presentation.AlbumScreen
 import com.kannan.gallery.feature.album.presentation.AlbumScreenViewModel
 import com.kannan.gallery.feature.album.presentation.AlbumTimelineScreen
 import com.kannan.gallery.feature.album.presentation.AlbumTimelineScreenViewModel
+import com.kannan.gallery.feature.memories.presentation.MemoriesScreen
+import com.kannan.gallery.feature.memories.presentation.MemoriesViewModel
 import com.kannan.gallery.feature.settings.presentation.SettingsScreen
 import com.kannan.gallery.feature.setup.presentation.SetupScreen
 import com.kannan.gallery.feature.setup.presentation.SetupScreenViewModel
@@ -117,6 +119,22 @@ fun SetupNavGraph(
 
             composable<NavigationScreen.SettingsScreen> {
                 SettingsScreen()
+            }
+
+            composable<NavigationScreen.MemoriesScreen> {
+                val viewModel = viewModel<MemoriesViewModel>()
+                val memoriesUiState by viewModel.memoriesUiState.collectAsStateWithLifecycle()
+                val timelineUiState by viewModel.timelineUiState.collectAsStateWithLifecycle()
+                val detailUiState by viewModel.detailUiState.collectAsStateWithLifecycle()
+                MemoriesScreen(
+                    uiState = memoriesUiState,
+                    uiEvent = viewModel.uiEvent,
+                    timelineUiState = timelineUiState,
+                    timelineUiAction = viewModel::onTimelineUiAction,
+                    detailUiAction = viewModel::onDetailUiAction,
+                    detailUiState = detailUiState,
+                    navigateUp = navHostController::navigateUp
+                )
             }
         }
     }

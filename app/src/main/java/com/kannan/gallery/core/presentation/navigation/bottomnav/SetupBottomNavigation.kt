@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.kannan.gallery.ui.theme.GalleryTheme
+import com.kannan.gallery.utils.ext.getRoute
 
 @Composable
 fun SetupBottomNavigation(
@@ -32,7 +33,7 @@ fun SetupBottomNavigation(
         NavigationBar(modifier = modifier) {
             BottomNavigationItem.entries.forEachIndexed { _, bottomNavigationItems ->
                 val isSelected =
-                    currentDestination == bottomNavigationItems.screen::class.qualifiedName
+                    currentDestination == bottomNavigationItems.screen::class.getRoute()
 
                 NavigationBarItem(
                     selected = isSelected,
