@@ -1,6 +1,12 @@
 package com.kannan.gallery.presentation.components
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -14,12 +20,14 @@ import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.photo.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MediaContent(
+fun SharedTransitionScope.MediaContent(
     modifier: Modifier = Modifier,
     mediaList: List<Media>,
     initialPagerPosition: Int,
-    onBackPressed: (Int) -> Unit
+    onBackPressed: (Int) -> Unit,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val pagerState = rememberPagerState(
         initialPage = initialPagerPosition,
@@ -42,18 +50,31 @@ fun MediaContent(
         Thumbnail(
             data = data.uri,
             contentDescription = data.uri,
+            modifier = Modifier
+                .sharedBounds(
+                    sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                )
         )
     }
 }
 
+@SuppressLint("UnusedContentLambdaTargetStateParameter")
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 private fun DetailContentPreview() {
     GalleryTheme {
-        MediaContent(
-            mediaList = dummyTimelineMediaList,
-            onBackPressed = {},
-            initialPagerPosition = 0
-        )
+        SharedTransitionLayout {
+            AnimatedContent(true, label = "") {
+                MediaContent(
+                    mediaList = dummyTimelineMediaList,
+                    onBackPressed = {},
+                    initialPagerPosition = 0,
+                    animatedVisibilityScope = this
+                )
+            }
+        }
     }
 }
