@@ -14,6 +14,7 @@ import com.kannan.gallery.presentation.feature.album.AlbumDetailScreen
 import com.kannan.gallery.presentation.feature.album.AlbumScreen
 import com.kannan.gallery.presentation.feature.album.AlbumScreenViewModel
 import com.kannan.gallery.presentation.feature.photo.PhotoScreen
+import com.kannan.gallery.presentation.feature.photo.PhotoScreenViewModel
 import com.kannan.gallery.presentation.feature.settings.SettingsScreen
 import com.kannan.gallery.presentation.feature.setup.SetupScreen
 import com.kannan.gallery.presentation.feature.setup.SetupScreenViewModel
@@ -50,7 +51,16 @@ fun SetupNavGraph(
 
 
             composable<NavigationScreen.PhotoScreen> {
-                PhotoScreen()
+                val viewModel = viewModel<PhotoScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                PhotoScreen(
+                    uiState = uiState,
+                    uiEvent = viewModel.uiEvent,
+                    uiAction = viewModel::onUiAction,
+                    mediaList = viewModel.mediaList,
+                    navigateUpCallback = navHostController::navigateUp
+                )
             }
 
             composable<NavigationScreen.AlbumScreen> {
