@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.kannan.gallery.presentation.feature.album.AlbumDetailScreen
+import com.kannan.gallery.presentation.feature.album.AlbumDetailScreenViewModel
 import com.kannan.gallery.presentation.feature.album.AlbumScreen
 import com.kannan.gallery.presentation.feature.album.AlbumScreenViewModel
 import com.kannan.gallery.presentation.feature.photo.PhotoScreen
@@ -76,13 +77,21 @@ fun SetupNavGraph(
 
 
             composable<NavigationScreen.AlbumDetailScreen> {
-                AlbumDetailScreen()
+                val viewModel = viewModel<AlbumDetailScreenViewModel>()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                AlbumDetailScreen(
+                    uiState = uiState,
+                    uiEvent = viewModel.uiEvent,
+                    uiAction = viewModel::onUiAction,
+                    mediaList = viewModel.mediaList,
+                    navigateUpCallback = navHostController::navigateUp
+                )
             }
 
             composable<NavigationScreen.SettingsScreen> {
                 SettingsScreen()
             }
-
         }
     }
 }
