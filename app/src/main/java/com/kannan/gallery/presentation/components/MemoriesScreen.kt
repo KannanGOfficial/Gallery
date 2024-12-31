@@ -25,19 +25,19 @@ fun MemoriesScreen(
 
     when (uiState.memoriesScreenState) {
         MemoriesScreenState.TIMELINE -> {
-            TimelineContent(
+            /*TimelineContent(
                 uiState = timelineUiState,
                 uiAction = timelineUiAction,
                 mediaList = uiState.mediaList
-            )
+            )*/
         }
 
         MemoriesScreenState.DETAIL -> {
-            DetailContent(
+            /*DetailContent(
                 uiState = detailUiState,
                 uiAction = detailUiAction,
                 mediaList = uiState.mediaList
-            )
+            )*/
         }
     }
 }

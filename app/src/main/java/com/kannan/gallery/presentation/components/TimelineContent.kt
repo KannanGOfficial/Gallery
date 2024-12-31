@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -17,17 +19,24 @@ import com.kannan.gallery.ui.theme.GalleryTheme
 @Composable
 fun TimelineContent(
     modifier: Modifier = Modifier,
-    uiState: MemoriesScreenUiState.TimelineUiState,
-    uiAction: ((MemoriesTimelineUiAction) -> Unit),
-    mediaList: List<Media>
+    mediaList: List<Media>,
+    currentMediaPosition: Int,
+    onImageClicked: (Media) -> Unit,
+    onImageLongClicked: (Media) -> Unit,
+    onBackPressed: () -> Unit
 ) {
 
-    BackHandler {
-        uiAction.invoke(MemoriesTimelineUiAction.OnBackPressed)
+    val lazyGridState = rememberLazyGridState()
+
+    LaunchedEffect(currentMediaPosition) {
+        lazyGridState.scrollToItem(currentMediaPosition)
     }
+
+    BackHandler(onBack = onBackPressed)
 
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
+        state = lazyGridState,
         columns = GridCells.Fixed(3)
     ) {
         items(
@@ -35,12 +44,14 @@ fun TimelineContent(
         ) { index: Int ->
             val data = mediaList[index]
             Thumbnail(
-                modifier = Modifier
-                    .size(200.dp),
+                modifier = Modifier.size(200.dp),
                 data = data.uri,
                 contentDescription = data.uri,
                 onClick = {
-                    uiAction.invoke(MemoriesTimelineUiAction.OnImageClicked(index))
+                    onImageClicked.invoke(data)
+                },
+                onLongClick = {
+                    onImageLongClicked.invoke(data)
                 }
             )
         }
@@ -52,9 +63,11 @@ fun TimelineContent(
 private fun TimelineContentPreview() {
     GalleryTheme {
         TimelineContent(
-            uiState = MemoriesScreenUiState.TimelineUiState(),
-            uiAction = {},
-            mediaList = dummyTimelineMediaList
+            mediaList = dummyTimelineMediaList,
+            currentMediaPosition = 0,
+            onBackPressed = {},
+            onImageClicked = {},
+            onImageLongClicked = {}
         )
     }
 }

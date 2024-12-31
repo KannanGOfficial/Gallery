@@ -2,22 +2,16 @@ package com.kannan.gallery.presentation.main
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.kannan.gallery.presentation.navigation.bottomnav.BottomNavigationItem
 import com.kannan.gallery.utils.ext.getRoute
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class MainViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
-    val uiState = _uiState.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = MainUiState()
-    )
+    val uiState = _uiState.asStateFlow()
 
     fun onUiAction(action: MainUiAction) {
         when (action) {

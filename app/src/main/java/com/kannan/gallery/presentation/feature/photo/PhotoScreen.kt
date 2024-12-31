@@ -1,22 +1,62 @@
 package com.kannan.gallery.presentation.feature.photo
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.kannan.gallery.domain.model.Media
+import com.kannan.gallery.presentation.components.MediaContent
+import com.kannan.gallery.presentation.components.TimelineContent
+import com.kannan.gallery.presentation.main.dummyTimelineMediaList
+import com.kannan.gallery.utils.ext.CollectAsEffect
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
-fun PhotoScreen(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.then(Modifier.fillMaxSize()), contentAlignment = Alignment.Center) {
-        Text(text = "PhotoScreen")
+fun PhotoScreen(
+    modifier: Modifier = Modifier,
+    uiState: PhotoScreenUiState,
+    uiEvent: Flow<PhotoScreenUiEvent>,
+    uiAction: (PhotoScreenUiAction) -> Unit,
+    mediaList: List<Media>,
+    navigateUpCallback: () -> Unit
+) {
+
+    uiEvent.CollectAsEffect { event ->
+        when (event) {
+            PhotoScreenUiEvent.NavigateUp -> navigateUpCallback.invoke()
+        }
+    }
+
+
+    TimelineContent(
+        modifier = modifier,
+        mediaList = mediaList,
+        currentMediaPosition = uiState.currentMediaPosition,
+        onImageClicked = { uiAction.invoke(PhotoScreenUiAction.OnImageClicked(it)) },
+        onImageLongClicked = { uiAction.invoke(PhotoScreenUiAction.OnImageLongClicked(it)) },
+        onBackPressed = { uiAction.invoke(PhotoScreenUiAction.OnTimelineContentBackPressed) },
+    )
+
+    if (uiState.screenContentType == ScreenContentType.MEDIA) {
+        MediaContent(
+            mediaList = mediaList,
+            initialPagerPosition = uiState.currentMediaPosition,
+            modifier = modifier,
+            onBackPressed = { uiAction.invoke(PhotoScreenUiAction.OnMediaContentBackPressed(it)) }
+        )
     }
 }
 
 @Preview
 @Composable
 private fun PhotoScreenPreview() {
-    PhotoScreen()
+    PhotoScreen(
+        uiState = PhotoScreenUiState(
+            screenContentType = ScreenContentType.MEDIA
+        ),
+        uiEvent = emptyFlow(),
+        uiAction = {},
+        mediaList = dummyTimelineMediaList,
+        navigateUpCallback = {}
+    )
 }
