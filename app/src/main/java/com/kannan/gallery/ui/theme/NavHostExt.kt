@@ -2,7 +2,7 @@ package com.kannan.gallery.ui.theme
 
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.kannan.gallery.core.presentation.navigation.NavigationScreen
+import com.kannan.gallery.presentation.navigation.NavigationScreen
 
 fun NavHostController.navigateFromSetupScreen(navigationScreen: NavigationScreen) {
     navigate(navigationScreen) {
