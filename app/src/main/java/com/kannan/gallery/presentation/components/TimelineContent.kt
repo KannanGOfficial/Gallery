@@ -1,6 +1,11 @@
 package com.kannan.gallery.presentation.components
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,14 +21,16 @@ import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.photo.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun TimelineContent(
+fun SharedTransitionScope.TimelineContent(
     modifier: Modifier = Modifier,
     mediaList: List<Media>,
     currentMediaPosition: Int,
     onImageClicked: (Media) -> Unit,
     onImageLongClicked: (Media) -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 
     val lazyGridState = rememberLazyGridState()
@@ -44,7 +51,13 @@ fun TimelineContent(
         ) { index: Int ->
             val data = mediaList[index]
             Thumbnail(
-                modifier = Modifier.size(200.dp),
+                modifier = Modifier
+                    .size(200.dp)
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                    ),
                 data = data.uri,
                 contentDescription = data.uri,
                 onClick = {
@@ -58,16 +71,22 @@ fun TimelineContent(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 private fun TimelineContentPreview() {
     GalleryTheme {
-        TimelineContent(
-            mediaList = dummyTimelineMediaList,
-            currentMediaPosition = 0,
-            onBackPressed = {},
-            onImageClicked = {},
-            onImageLongClicked = {}
-        )
+        SharedTransitionLayout {
+            AnimatedVisibility(true) {
+                TimelineContent(
+                    mediaList = dummyTimelineMediaList,
+                    currentMediaPosition = 0,
+                    onBackPressed = {},
+                    onImageClicked = {},
+                    onImageLongClicked = {},
+                    animatedVisibilityScope = this
+                )
+            }
+        }
     }
 }
