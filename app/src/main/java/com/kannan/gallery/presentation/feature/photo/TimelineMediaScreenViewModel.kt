@@ -2,8 +2,6 @@ package com.kannan.gallery.presentation.feature.photo
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.navigation.toRoute
-import com.kannan.gallery.presentation.navigation.NavigationScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,8 +12,8 @@ class TimelineMediaScreenViewModel(savedStateHandle: SavedStateHandle) : ViewMod
     val uiState = _uiState.asStateFlow()
 
     init {
-        val timelineMediaScreen: NavigationScreen.TimelineMediaScreen = savedStateHandle.toRoute()
-        updateScrollToPositionUiState(timelineMediaScreen.initialPagerPosition)
+        /*        val timelineMediaScreen: NavigationScreen.TimelineMediaScreen = savedStateHandle.toRoute()
+                updateScrollToPositionUiState(timelineMediaScreen.initialPagerPosition)*/
     }
 
     private fun updateScrollToPositionUiState(scrollToPosition: Int) =

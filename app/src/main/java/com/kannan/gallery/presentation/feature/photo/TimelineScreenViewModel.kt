@@ -31,13 +31,13 @@ class TimelineScreenViewModel : ViewModel() {
             TimelineScreenUiAction.OnCopyButtonClicked -> Unit
 
             is TimelineScreenUiAction.OnImageClicked -> {
-                sendEvent(
-                    event = TimelineScreenUiEvent.NavigateTo(
-                        NavigationScreen.TimelineMediaScreen(
-                            action.position
-                        )
-                    )
-                )
+                /* sendEvent(
+                     event = TimelineScreenUiEvent.NavigateTo(
+                         NavigationScreen.TimelineMediaScreen(
+                             action.position
+                         )
+                     )
+                 )*/
             }
 
             is TimelineScreenUiAction.OnImageLongClicked -> Unit

@@ -3,7 +3,6 @@ package com.kannan.gallery.presentation.feature.album
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.kannan.gallery.presentation.navigation.NavigationScreen
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +22,8 @@ class AlbumTimelineScreenViewModel(savedStateHandle: SavedStateHandle) : ViewMod
     )
 
     init {
-        val albumTimelineScreen: NavigationScreen.AlbumTimeLineScreen = savedStateHandle.toRoute()
-        updateAlbumNameUiState(albumName = albumTimelineScreen.albumName)
+        /*        val albumTimelineScreen: NavigationScreen.AlbumTimeLineScreen = savedStateHandle.toRoute()
+                updateAlbumNameUiState(albumName = albumTimelineScreen.albumName)*/
     }
 
     private val _uiEvent = Channel<AlbumTimelineScreenUiEvent>()
@@ -33,13 +32,13 @@ class AlbumTimelineScreenViewModel(savedStateHandle: SavedStateHandle) : ViewMod
     fun onUiAction(action: AlbumTimelineScreenUiAction) {
         when (action) {
             is AlbumTimelineScreenUiAction.OnImageClicked -> {
-                sendEvent(
+                /*sendEvent(
                     AlbumTimelineScreenUiEvent.NavigateTo(
                         NavigationScreen.AlbumMediaScreen(
                             action.position
                         )
                     )
-                )
+                )*/
             }
         }
     }

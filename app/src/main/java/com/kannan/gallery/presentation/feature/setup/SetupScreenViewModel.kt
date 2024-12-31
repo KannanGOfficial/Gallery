@@ -50,7 +50,7 @@ class SetupScreenViewModel : ViewModel() {
 
             is SetupScreenUiAction.PermissionCallback -> {
                 if (action.isPermissionGranted)
-                    sendEvent(SetupScreenUiEvent.NavigateTo(NavigationScreen.TimelineScreen))
+                    sendEvent(SetupScreenUiEvent.NavigateTo(NavigationScreen.PhotoScreen))
             }
         }
     }
