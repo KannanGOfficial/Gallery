@@ -27,7 +27,8 @@ import com.kannan.gallery.ui.theme.navigateTo
 fun SetupNavGraph(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-    startDestination: NavigationScreen
+    startDestination: NavigationScreen,
+    shouldShowBottomBar: (Boolean) -> Unit,
 ) {
 
     SharedTransitionLayout(
@@ -60,7 +61,8 @@ fun SetupNavGraph(
                     uiEvent = viewModel.uiEvent,
                     uiAction = viewModel::onUiAction,
                     mediaList = viewModel.mediaList,
-                    navigateUpCallback = navHostController::navigateUp
+                    navigateUpCallback = navHostController::navigateUp,
+                    shouldShowBottomBar = shouldShowBottomBar
                 )
             }
 
