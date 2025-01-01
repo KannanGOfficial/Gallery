@@ -65,7 +65,8 @@ class MainActivity : ComponentActivity() {
                     SetupNavGraph(
                         navHostController = navHostController,
                         startDestination = startDestination,
-                        modifier = Modifier.padding(bottom = bottomPadding, top = topPadding)
+                        modifier = Modifier.padding(bottom = bottomPadding, top = topPadding),
+                        shouldShowBottomBar = { uiAction.invoke(MainUiAction.ShouldShowBottomBar(it)) }
                     )
                 }
             }

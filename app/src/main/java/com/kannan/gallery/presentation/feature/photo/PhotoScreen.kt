@@ -5,6 +5,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.kannan.gallery.data.dummyTimelineMediaList
@@ -23,12 +24,20 @@ fun SharedTransitionScope.PhotoScreen(
     uiEvent: Flow<PhotoScreenUiEvent>,
     uiAction: (PhotoScreenUiAction) -> Unit,
     mediaList: List<Media>,
+    shouldShowBottomBar: (Boolean) -> Unit,
     navigateUpCallback: () -> Unit
 ) {
 
     uiEvent.CollectAsEffect { event ->
         when (event) {
             PhotoScreenUiEvent.NavigateUp -> navigateUpCallback.invoke()
+        }
+    }
+
+    LaunchedEffect(uiState.screenContentType) {
+        when (uiState.screenContentType) {
+            ScreenContentType.TIMELINE -> shouldShowBottomBar.invoke(true)
+            ScreenContentType.MEDIA -> shouldShowBottomBar.invoke(false)
         }
     }
 
@@ -81,7 +90,8 @@ private fun PhotoScreenPreview() {
             uiEvent = emptyFlow(),
             uiAction = {},
             mediaList = dummyTimelineMediaList,
-            navigateUpCallback = {}
+            navigateUpCallback = {},
+            shouldShowBottomBar = {}
         )
     }
 }

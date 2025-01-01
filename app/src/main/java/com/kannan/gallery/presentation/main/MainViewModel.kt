@@ -16,6 +16,10 @@ class MainViewModel : ViewModel() {
     fun onUiAction(action: MainUiAction) {
         when (action) {
             is MainUiAction.OnNavDestinationChanged -> setBottomBarVisibility(action.route)
+            is MainUiAction.ShouldShowBottomBar -> {
+                Log.d("NavDestination :", "called")
+                updateShouldShowBottomBarUiState(action.shouldShowBottomBar)
+            }
         }
     }
 
@@ -24,7 +28,7 @@ class MainViewModel : ViewModel() {
             it.screen::class.getRoute() == route
         }
 
-        Log.d("NavDestination :", "")
+        Log.d("NavDestination :", "$shouldShowBottomBar")
         updateShouldShowBottomBarUiState(shouldShowBottomBar)
     }
 
@@ -43,4 +47,5 @@ data class MainUiState(
 
 sealed interface MainUiAction {
     data class OnNavDestinationChanged(val route: String) : MainUiAction
+    data class ShouldShowBottomBar(val shouldShowBottomBar: Boolean) : MainUiAction
 }
