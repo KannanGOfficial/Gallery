@@ -68,7 +68,7 @@ fun SetupNavGraph(
             }
 
             composable<NavigationScreen.AlbumScreen> {
-                val viewModel = viewModel<AlbumScreenViewModel>()
+                val viewModel = hiltViewModel<AlbumScreenViewModel>()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 AlbumScreen(
                     uiState = uiState,

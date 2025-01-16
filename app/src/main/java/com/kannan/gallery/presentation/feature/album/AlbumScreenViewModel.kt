@@ -2,8 +2,10 @@ package com.kannan.gallery.presentation.feature.album
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kannan.gallery.domain.GalleryRepository
 import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.presentation.navigation.NavigationScreen
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,8 +13,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AlbumScreenViewModel : ViewModel() {
+@HiltViewModel
+class AlbumScreenViewModel @Inject constructor(
+    private val repository: GalleryRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AlbumScreenUiState())
     val uiState = _uiState.stateIn(
@@ -22,7 +28,10 @@ class AlbumScreenViewModel : ViewModel() {
     )
 
     init {
-        updateAlbumListUiState(albumList1)
+        viewModelScope.launch {
+            val albumList = repository.getAllAlbum()
+            updateAlbumListUiState(albumList)
+        }
     }
 
     private val _uiEvent = Channel<AlbumScreenUiEvent>()
