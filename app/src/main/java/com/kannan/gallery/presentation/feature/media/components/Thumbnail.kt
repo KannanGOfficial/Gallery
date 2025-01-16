@@ -1,4 +1,4 @@
-package com.kannan.gallery.presentation.feature.photo.components
+package com.kannan.gallery.presentation.feature.media.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
