@@ -36,7 +36,16 @@ fun SharedTransitionScope.TimelineContent(
     val lazyGridState = rememberLazyGridState()
 
     LaunchedEffect(currentMediaPosition) {
-        lazyGridState.scrollToItem(currentMediaPosition)
+
+        val firstVisibleIndex = lazyGridState.firstVisibleItemIndex
+        val lastVisibleIndex = lazyGridState.layoutInfo.visibleItemsInfo.size - 1
+
+        val isCurrentMediaItemIsVisible =
+            (firstVisibleIndex..lastVisibleIndex).contains(currentMediaPosition)
+
+        if (!isCurrentMediaItemIsVisible) {
+            lazyGridState.scrollToItem(currentMediaPosition)
+        }
     }
 
     BackHandler(onBack = onBackPressed)
