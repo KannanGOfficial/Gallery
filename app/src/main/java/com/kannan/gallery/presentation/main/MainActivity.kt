@@ -24,7 +24,9 @@ import com.kannan.gallery.presentation.navigation.bottomnav.SetupBottomNavigatio
 import com.kannan.gallery.ui.theme.GalleryTheme
 import com.kannan.gallery.ui.theme.navigateBottomBar
 import com.kannan.gallery.utils.ext.checkPermission
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

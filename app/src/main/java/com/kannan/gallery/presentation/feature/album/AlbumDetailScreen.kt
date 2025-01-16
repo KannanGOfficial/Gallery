@@ -8,8 +8,6 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.kannan.gallery.data.dummyTimelineMediaList
-import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
 import com.kannan.gallery.presentation.feature.photo.ScreenContentType
@@ -25,7 +23,6 @@ fun SharedTransitionScope.AlbumDetailScreen(
     uiState: AlbumDetailScreenUiState,
     uiEvent: Flow<AlbumDetailScreenUiEvent>,
     uiAction: (AlbumDetailScreenUiAction) -> Unit,
-    mediaList: List<Media>,
     navigateUpCallback: () -> Unit
 ) {
     uiEvent.CollectAsEffect { event ->
@@ -43,7 +40,6 @@ fun SharedTransitionScope.AlbumDetailScreen(
             ScreenContentType.TIMELINE -> {
                 TimelineContent(
                     modifier = modifier,
-                    mediaList = mediaList,
                     currentMediaPosition = uiState.currentMediaPosition,
                     onImageClicked = { uiAction.invoke(AlbumDetailScreenUiAction.OnImageClicked(it)) },
                     onImageLongClicked = {
@@ -54,13 +50,13 @@ fun SharedTransitionScope.AlbumDetailScreen(
                         )
                     },
                     onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
-                    animatedVisibilityScope = this
+                    animatedVisibilityScope = this,
+                    mediaListPagedStream = emptyFlow()
                 )
             }
 
             ScreenContentType.MEDIA -> {
                 MediaContent(
-                    mediaList = mediaList,
                     initialPagerPosition = uiState.currentMediaPosition,
                     modifier = modifier,
                     onBackPressed = {
@@ -70,7 +66,8 @@ fun SharedTransitionScope.AlbumDetailScreen(
                             )
                         )
                     },
-                    animatedVisibilityScope = this
+                    animatedVisibilityScope = this,
+                    mediaListPagedStream = emptyFlow()
                 )
             }
         }
@@ -92,7 +89,6 @@ private fun AlbumDetailScreenPreview() {
                     ),
                     uiEvent = emptyFlow(),
                     uiAction = {},
-                    mediaList = dummyTimelineMediaList,
                     navigateUpCallback = {}
                 )
             }

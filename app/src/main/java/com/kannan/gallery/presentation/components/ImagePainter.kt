@@ -14,7 +14,7 @@ import com.kannan.gallery.R
 
 @Composable
 fun imagePainter(data: String) =
-    if (LocalInspectionMode.current || true)
+    if (LocalInspectionMode.current)
         painterResource(id = R.drawable.deadpool_primary)
     else
         rememberAsyncImagePainter(

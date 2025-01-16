@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.kannan.gallery.data.dummyTimelineMediaList
+import androidx.paging.PagingData
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
@@ -23,7 +23,7 @@ fun SharedTransitionScope.PhotoScreen(
     uiState: PhotoScreenUiState,
     uiEvent: Flow<PhotoScreenUiEvent>,
     uiAction: (PhotoScreenUiAction) -> Unit,
-    mediaList: List<Media>,
+    mediaListPagedStream: Flow<PagingData<Media>>,
     shouldShowBottomBar: (Boolean) -> Unit,
     navigateUpCallback: () -> Unit
 ) {
@@ -50,18 +50,17 @@ fun SharedTransitionScope.PhotoScreen(
             ScreenContentType.TIMELINE -> {
                 TimelineContent(
                     modifier = modifier,
-                    mediaList = mediaList,
                     currentMediaPosition = uiState.currentMediaPosition,
                     onImageClicked = { uiAction.invoke(PhotoScreenUiAction.OnImageClicked(it)) },
                     onImageLongClicked = { uiAction.invoke(PhotoScreenUiAction.OnImageLongClicked(it)) },
                     onBackPressed = { uiAction.invoke(PhotoScreenUiAction.OnTimelineContentBackPressed) },
-                    animatedVisibilityScope = this
+                    animatedVisibilityScope = this,
+                    mediaListPagedStream = mediaListPagedStream
                 )
             }
 
             ScreenContentType.MEDIA -> {
                 MediaContent(
-                    mediaList = mediaList,
                     initialPagerPosition = uiState.currentMediaPosition,
                     modifier = modifier,
                     onBackPressed = {
@@ -71,7 +70,8 @@ fun SharedTransitionScope.PhotoScreen(
                             )
                         )
                     },
-                    animatedVisibilityScope = this
+                    animatedVisibilityScope = this,
+                    mediaListPagedStream = mediaListPagedStream
                 )
             }
         }
@@ -89,9 +89,9 @@ private fun PhotoScreenPreview() {
             ),
             uiEvent = emptyFlow(),
             uiAction = {},
-            mediaList = dummyTimelineMediaList,
             navigateUpCallback = {},
-            shouldShowBottomBar = {}
+            shouldShowBottomBar = {},
+            mediaListPagedStream = emptyFlow()
         )
     }
 }

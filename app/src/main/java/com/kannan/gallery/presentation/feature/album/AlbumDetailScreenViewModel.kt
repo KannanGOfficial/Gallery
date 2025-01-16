@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.kannan.gallery.data.dummyAlbumMediaList
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.photo.ScreenContentType
 import com.kannan.gallery.presentation.navigation.NavigationScreen
@@ -25,8 +24,6 @@ class AlbumDetailScreenViewModel(
     private val _uiEvent = Channel<AlbumDetailScreenUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    val mediaList = dummyAlbumMediaList
-
     init {
         val albumName = savedStateHandle.toRoute<NavigationScreen.AlbumDetailScreen>().albumName
 
@@ -45,8 +42,7 @@ class AlbumDetailScreenViewModel(
             }
 
             is AlbumDetailScreenUiAction.OnImageClicked -> {
-                val currentPosition = mediaList.indexOf(action.media)
-                updateCurrentPosition(currentPosition)
+                updateCurrentPosition(action.index)
 
                 updateScreenTypeUiState(ScreenContentType.MEDIA)
             }
@@ -90,7 +86,7 @@ data class AlbumDetailScreenUiState(
 )
 
 sealed interface AlbumDetailScreenUiAction {
-    data class OnImageClicked(val media: Media) : AlbumDetailScreenUiAction
+    data class OnImageClicked(val index: Int) : AlbumDetailScreenUiAction
     data class OnImageLongClicked(val media: Media) : AlbumDetailScreenUiAction
     data object OnTimelineContentBackPressed : AlbumDetailScreenUiAction
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : AlbumDetailScreenUiAction
