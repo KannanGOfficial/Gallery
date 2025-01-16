@@ -15,23 +15,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.kannan.gallery.data.dummyTimelineMediaList
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.photo.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.MediaContent(
     modifier: Modifier = Modifier,
-    mediaList: List<Media>,
     initialPagerPosition: Int,
+    mediaListPagedStream: Flow<PagingData<Media>>,
     onBackPressed: (Int) -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
+
+    val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
+
     val pagerState = rememberPagerState(
         initialPage = initialPagerPosition,
-        pageCount = { mediaList.size }
+        pageCount = { lazyPagingItems.itemCount }
     )
 
     BackHandler {
@@ -45,18 +51,20 @@ fun SharedTransitionScope.MediaContent(
             .background(Color.Black)
     ) { pageNumber ->
 
-        val data = mediaList[pageNumber]
+        val data = lazyPagingItems[pageNumber]
 
-        Thumbnail(
-            data = data.uri,
-            contentDescription = data.uri,
-            modifier = Modifier
-                .sharedBounds(
-                    sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
-                    animatedVisibilityScope = animatedVisibilityScope,
-                    resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-                )
-        )
+        data?.let {
+            Thumbnail(
+                data = data.uri,
+                contentDescription = data.uri,
+                modifier = Modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                    )
+            )
+        }
     }
 }
 
@@ -69,10 +77,10 @@ private fun DetailContentPreview() {
         SharedTransitionLayout {
             AnimatedContent(true, label = "") {
                 MediaContent(
-                    mediaList = dummyTimelineMediaList,
                     onBackPressed = {},
                     initialPagerPosition = 0,
-                    animatedVisibilityScope = this
+                    animatedVisibilityScope = this,
+                    mediaListPagedStream = emptyFlow()
                 )
             }
         }

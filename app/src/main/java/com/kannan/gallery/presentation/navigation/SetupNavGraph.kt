@@ -5,6 +5,7 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -53,14 +54,14 @@ fun SetupNavGraph(
 
 
             composable<NavigationScreen.PhotoScreen> {
-                val viewModel = viewModel<PhotoScreenViewModel>()
+                val viewModel = hiltViewModel<PhotoScreenViewModel>()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                 PhotoScreen(
                     uiState = uiState,
                     uiEvent = viewModel.uiEvent,
                     uiAction = viewModel::onUiAction,
-                    mediaList = viewModel.mediaList,
+                    mediaListPagedStream = viewModel.mediaListPagedStream,
                     navigateUpCallback = navHostController::navigateUp,
                     shouldShowBottomBar = shouldShowBottomBar
                 )
@@ -86,7 +87,6 @@ fun SetupNavGraph(
                     uiState = uiState,
                     uiEvent = viewModel.uiEvent,
                     uiAction = viewModel::onUiAction,
-                    mediaList = viewModel.mediaList,
                     navigateUpCallback = navHostController::navigateUp
                 )
             }
