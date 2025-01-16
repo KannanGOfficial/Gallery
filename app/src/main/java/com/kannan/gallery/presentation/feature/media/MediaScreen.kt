@@ -1,4 +1,4 @@
-package com.kannan.gallery.presentation.feature.photo
+package com.kannan.gallery.presentation.feature.media
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -18,11 +18,11 @@ import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.PhotoScreen(
+fun SharedTransitionScope.MediaScreen(
     modifier: Modifier = Modifier,
-    uiState: PhotoScreenUiState,
-    uiEvent: Flow<PhotoScreenUiEvent>,
-    uiAction: (PhotoScreenUiAction) -> Unit,
+    uiState: MediaScreenUiState,
+    uiEvent: Flow<MediaScreenUiEvent>,
+    uiAction: (MediaScreenUiAction) -> Unit,
     mediaListPagedStream: Flow<PagingData<Media>>,
     shouldShowBottomBar: (Boolean) -> Unit,
     navigateUpCallback: () -> Unit
@@ -30,7 +30,7 @@ fun SharedTransitionScope.PhotoScreen(
 
     uiEvent.CollectAsEffect { event ->
         when (event) {
-            PhotoScreenUiEvent.NavigateUp -> navigateUpCallback.invoke()
+            MediaScreenUiEvent.NavigateUp -> navigateUpCallback.invoke()
         }
     }
 
@@ -51,9 +51,9 @@ fun SharedTransitionScope.PhotoScreen(
                 TimelineContent(
                     modifier = modifier,
                     currentMediaPosition = uiState.currentMediaPosition,
-                    onImageClicked = { uiAction.invoke(PhotoScreenUiAction.OnImageClicked(it)) },
-                    onImageLongClicked = { uiAction.invoke(PhotoScreenUiAction.OnImageLongClicked(it)) },
-                    onBackPressed = { uiAction.invoke(PhotoScreenUiAction.OnTimelineContentBackPressed) },
+                    onImageClicked = { uiAction.invoke(MediaScreenUiAction.OnImageClicked(it)) },
+                    onImageLongClicked = { uiAction.invoke(MediaScreenUiAction.OnImageLongClicked(it)) },
+                    onBackPressed = { uiAction.invoke(MediaScreenUiAction.OnTimelineContentBackPressed) },
                     animatedVisibilityScope = this,
                     mediaListPagedStream = mediaListPagedStream
                 )
@@ -65,7 +65,7 @@ fun SharedTransitionScope.PhotoScreen(
                     modifier = modifier,
                     onBackPressed = {
                         uiAction.invoke(
-                            PhotoScreenUiAction.OnMediaContentBackPressed(
+                            MediaScreenUiAction.OnMediaContentBackPressed(
                                 it
                             )
                         )
@@ -81,10 +81,10 @@ fun SharedTransitionScope.PhotoScreen(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
-private fun PhotoScreenPreview() {
+private fun MediaScreenPreview() {
     SharedTransitionLayout {
-        PhotoScreen(
-            uiState = PhotoScreenUiState(
+        MediaScreen(
+            uiState = MediaScreenUiState(
                 screenContentType = ScreenContentType.MEDIA
             ),
             uiEvent = emptyFlow(),

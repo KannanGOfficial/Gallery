@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kannan.gallery.domain.model.Media
-import com.kannan.gallery.presentation.feature.photo.ScreenContentType
+import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.presentation.navigation.NavigationScreen
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
-import com.kannan.gallery.presentation.feature.photo.ScreenContentType
+import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.ui.theme.GalleryTheme
 import com.kannan.gallery.utils.ext.CollectAsEffect
 import kotlinx.coroutines.flow.Flow

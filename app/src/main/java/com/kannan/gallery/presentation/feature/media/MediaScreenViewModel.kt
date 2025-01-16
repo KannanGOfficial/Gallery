@@ -1,4 +1,4 @@
-package com.kannan.gallery.presentation.feature.photo
+package com.kannan.gallery.presentation.feature.media
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,14 +19,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PhotoScreenViewModel @Inject constructor(
+class MediaScreenViewModel @Inject constructor(
     repository: GalleryRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PhotoScreenUiState())
+    private val _uiState = MutableStateFlow(MediaScreenUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _uiEvent = Channel<PhotoScreenUiEvent>()
+    private val _uiEvent = Channel<MediaScreenUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _mediaListPagedStream = MutableStateFlow<PagingData<Media>>(PagingData.empty())
@@ -37,30 +37,29 @@ class PhotoScreenViewModel @Inject constructor(
             .cachedIn(viewModelScope)
             .onEach {
                 updateMediaList(it)
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
 
-    fun onUiAction(action: PhotoScreenUiAction) {
+    fun onUiAction(action: MediaScreenUiAction) {
         when (action) {
-            PhotoScreenUiAction.OnTimelineContentBackPressed -> {
-                sendEvent(PhotoScreenUiEvent.NavigateUp)
+            MediaScreenUiAction.OnTimelineContentBackPressed -> {
+                sendEvent(MediaScreenUiEvent.NavigateUp)
             }
 
-            is PhotoScreenUiAction.OnMediaContentBackPressed -> {
+            is MediaScreenUiAction.OnMediaContentBackPressed -> {
                 updateCurrentPosition(action.currentMediaPosition)
                 updateScreenTypeUiState(ScreenContentType.TIMELINE)
             }
 
-            is PhotoScreenUiAction.OnImageClicked -> {
+            is MediaScreenUiAction.OnImageClicked -> {
 
                 updateCurrentPosition(action.index)
 
                 updateScreenTypeUiState(ScreenContentType.MEDIA)
             }
 
-            is PhotoScreenUiAction.OnImageLongClicked -> {
+            is MediaScreenUiAction.OnImageLongClicked -> {
                 val newData = mediaListPagedStream.value.map {
                     if (it.id == action.media.id)
                         it.copy(isSelected = true)
@@ -93,26 +92,26 @@ class PhotoScreenViewModel @Inject constructor(
             )
         }
 
-    private fun sendEvent(event: PhotoScreenUiEvent) = viewModelScope.launch {
+    private fun sendEvent(event: MediaScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
 
 }
 
-data class PhotoScreenUiState(
+data class MediaScreenUiState(
     val screenContentType: ScreenContentType = ScreenContentType.TIMELINE,
     val currentMediaPosition: Int = 0
 )
 
-sealed interface PhotoScreenUiAction {
-    data class OnImageClicked(val index: Int) : PhotoScreenUiAction
-    data class OnImageLongClicked(val media: Media) : PhotoScreenUiAction
-    data object OnTimelineContentBackPressed : PhotoScreenUiAction
-    data class OnMediaContentBackPressed(val currentMediaPosition: Int) : PhotoScreenUiAction
+sealed interface MediaScreenUiAction {
+    data class OnImageClicked(val index: Int) : MediaScreenUiAction
+    data class OnImageLongClicked(val media: Media) : MediaScreenUiAction
+    data object OnTimelineContentBackPressed : MediaScreenUiAction
+    data class OnMediaContentBackPressed(val currentMediaPosition: Int) : MediaScreenUiAction
 }
 
-sealed interface PhotoScreenUiEvent {
-    data object NavigateUp : PhotoScreenUiEvent
+sealed interface MediaScreenUiEvent {
+    data object NavigateUp : MediaScreenUiEvent
 }
 
 enum class ScreenContentType {
