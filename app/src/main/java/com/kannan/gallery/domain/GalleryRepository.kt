@@ -10,4 +10,6 @@ interface GalleryRepository {
     fun getAllMediaPagedStream(): Flow<PagingData<Media>>
 
     suspend fun getAllAlbum(): List<Album>
+
+    fun getMediaByAlbumName(albumId: Long): Flow<PagingData<Media>>
 }

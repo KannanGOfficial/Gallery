@@ -4,30 +4,49 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.kannan.gallery.domain.GalleryRepository
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.presentation.navigation.NavigationScreen
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AlbumDetailScreenViewModel(
-    savedStateHandle: SavedStateHandle
+@HiltViewModel
+class AlbumDetailScreenViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    repository: GalleryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AlbumDetailScreenUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _mediaListPagedStream = MutableStateFlow<PagingData<Media>>(PagingData.empty())
+    val mediaListPagedStream = _mediaListPagedStream.asStateFlow()
+
     private val _uiEvent = Channel<AlbumDetailScreenUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
-        val albumName = savedStateHandle.toRoute<NavigationScreen.AlbumDetailScreen>().albumName
+        val albumDetailScreen = savedStateHandle.toRoute<NavigationScreen.AlbumDetailScreen>()
 
-        updateAlbumName(albumName)
+        updateAlbumName(albumDetailScreen.albumName)
+
+        repository.getMediaByAlbumName(albumDetailScreen.albumId)
+            .cachedIn(viewModelScope)
+            .onEach {
+                updateMediaList(it)
+            }.launchIn(viewModelScope)
+
     }
 
     fun onUiAction(action: AlbumDetailScreenUiAction) {
@@ -52,6 +71,11 @@ class AlbumDetailScreenViewModel(
             }
         }
     }
+
+    private fun updateMediaList(mediaList: PagingData<Media>) =
+        _mediaListPagedStream.update {
+            mediaList
+        }
 
     private fun updateScreenTypeUiState(screenContentType: ScreenContentType): Unit =
         _uiState.update {

@@ -80,13 +80,14 @@ fun SetupNavGraph(
 
 
             composable<NavigationScreen.AlbumDetailScreen> {
-                val viewModel = viewModel<AlbumDetailScreenViewModel>()
+                val viewModel = hiltViewModel<AlbumDetailScreenViewModel>()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                 AlbumDetailScreen(
                     uiState = uiState,
                     uiEvent = viewModel.uiEvent,
                     uiAction = viewModel::onUiAction,
+                    mediaListPagedStream = viewModel.mediaListPagedStream,
                     navigateUpCallback = navHostController::navigateUp
                 )
             }
