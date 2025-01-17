@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+// TODO: Need to filter out the Hidden files
 class GetAllAlbum @Inject constructor(@ApplicationContext private val context: Context) {
     private val queryUri =
         MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)

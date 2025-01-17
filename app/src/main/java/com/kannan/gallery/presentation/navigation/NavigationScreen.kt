@@ -14,7 +14,10 @@ sealed interface NavigationScreen {
     data object AlbumScreen : NavigationScreen
 
     @Serializable
-    data class AlbumDetailScreen(val albumName: String) : NavigationScreen
+    data class AlbumDetailScreen(
+        val albumName: String,
+        val albumId: Long
+    ) : NavigationScreen
 
     @Serializable
     data object SettingsScreen : NavigationScreen

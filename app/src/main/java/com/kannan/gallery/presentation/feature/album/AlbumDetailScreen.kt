@@ -8,6 +8,8 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.PagingData
+import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
@@ -22,6 +24,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
     modifier: Modifier = Modifier,
     uiState: AlbumDetailScreenUiState,
     uiEvent: Flow<AlbumDetailScreenUiEvent>,
+    mediaListPagedStream: Flow<PagingData<Media>>,
     uiAction: (AlbumDetailScreenUiAction) -> Unit,
     navigateUpCallback: () -> Unit
 ) {
@@ -51,7 +54,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
                     },
                     onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
                     animatedVisibilityScope = this,
-                    mediaListPagedStream = emptyFlow()
+                    mediaListPagedStream = mediaListPagedStream
                 )
             }
 
@@ -67,7 +70,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
                         )
                     },
                     animatedVisibilityScope = this,
-                    mediaListPagedStream = emptyFlow()
+                    mediaListPagedStream = mediaListPagedStream
                 )
             }
         }
@@ -89,7 +92,8 @@ private fun AlbumDetailScreenPreview() {
                     ),
                     uiEvent = emptyFlow(),
                     uiAction = {},
-                    navigateUpCallback = {}
+                    navigateUpCallback = {},
+                    mediaListPagedStream = emptyFlow()
                 )
             }
         }

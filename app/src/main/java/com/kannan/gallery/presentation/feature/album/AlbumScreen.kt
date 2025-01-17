@@ -42,7 +42,7 @@ fun AlbumScreen(
                 album = album,
                 modifier = Modifier.padding(12.dp),
                 onAlbumClicked = {
-                    uiAction.invoke(AlbumScreenUiAction.OnAlbumClicked(albumName = album.name))
+                    uiAction.invoke(AlbumScreenUiAction.OnAlbumClicked(album))
                 }
             )
         }

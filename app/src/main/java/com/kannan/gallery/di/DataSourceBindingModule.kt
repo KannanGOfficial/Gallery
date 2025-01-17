@@ -1,7 +1,7 @@
 package com.kannan.gallery.di
 
-import com.kannan.gallery.data.contentResolver.ContentResolverDataSource
-import com.kannan.gallery.data.contentResolver.ContentResolverDataSourceImpl
+import com.kannan.gallery.data.contentResolver.dataSource.ContentResolverDataSource
+import com.kannan.gallery.data.contentResolver.dataSource.ContentResolverDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

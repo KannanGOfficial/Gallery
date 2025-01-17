@@ -1,8 +1,8 @@
-package com.kannan.gallery.data.repository
+package com.kannan.gallery.data.pagingSource
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kannan.gallery.data.contentResolver.ContentResolverDataSource
+import com.kannan.gallery.data.contentResolver.dataSource.ContentResolverDataSource
 import com.kannan.gallery.data.contentResolver.models.MediaCR
 
 class GetAllMediaPagingSource(
@@ -39,6 +39,6 @@ class GetAllMediaPagingSource(
         }
 
     companion object {
-        const val STARTING_INDEX = 1
+        const val STARTING_INDEX = 0
     }
 }
