@@ -16,24 +16,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.media.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.MediaContent(
     modifier: Modifier = Modifier,
     initialPagerPosition: Int,
-    mediaListPagedStream: Flow<PagingData<Media>>,
+    lazyPagingItems: LazyPagingItems<Media>,
     onBackPressed: (Int) -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-
-    val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
 
     val pagerState = rememberPagerState(
         initialPage = initialPagerPosition,
@@ -80,7 +78,7 @@ private fun DetailContentPreview() {
                     onBackPressed = {},
                     initialPagerPosition = 0,
                     animatedVisibilityScope = this,
-                    mediaListPagedStream = emptyFlow()
+                    lazyPagingItems = flowOf(PagingData.empty<Media>()).collectAsLazyPagingItems(),
                 )
             }
         }

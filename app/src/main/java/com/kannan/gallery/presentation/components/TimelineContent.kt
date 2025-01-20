@@ -9,48 +9,32 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.media.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.TimelineContent(
     modifier: Modifier = Modifier,
-    currentMediaPosition: Int,
-    mediaListPagedStream: Flow<PagingData<Media>>,
+    lazyGridState: LazyGridState,
+    lazyPagingItems: LazyPagingItems<Media>,
     onImageClicked: (Int) -> Unit,
     onImageLongClicked: (Media) -> Unit,
     onBackPressed: () -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
-
-    val lazyGridState = rememberLazyGridState()
-
-    LaunchedEffect(currentMediaPosition) {
-
-        val firstVisibleIndex = lazyGridState.firstVisibleItemIndex
-        val lastVisibleIndex = lazyGridState.layoutInfo.visibleItemsInfo.size - 1
-
-        val isCurrentMediaItemIsVisible =
-            (firstVisibleIndex..lastVisibleIndex).contains(currentMediaPosition)
-
-        if (!isCurrentMediaItemIsVisible) {
-            lazyGridState.scrollToItem(currentMediaPosition)
-        }
-    }
 
     BackHandler(onBack = onBackPressed)
 
@@ -95,12 +79,12 @@ private fun TimelineContentPreview() {
         SharedTransitionLayout {
             AnimatedVisibility(true) {
                 TimelineContent(
-                    currentMediaPosition = 0,
                     onBackPressed = {},
                     onImageClicked = {},
                     onImageLongClicked = {},
                     animatedVisibilityScope = this,
-                    mediaListPagedStream = emptyFlow()
+                    lazyPagingItems = flowOf(PagingData.empty<Media>()).collectAsLazyPagingItems(),
+                    lazyGridState = rememberLazyGridState()
                 )
             }
         }

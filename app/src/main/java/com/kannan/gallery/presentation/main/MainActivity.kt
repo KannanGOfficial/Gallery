@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
 
     private fun getStartDestination() =
         when (checkPermission()) {
-            true -> NavigationScreen.AlbumScreen
+            true -> NavigationScreen.MediaScreen
             false -> NavigationScreen.SetupScreen
         }
 }
