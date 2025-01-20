@@ -8,7 +8,7 @@ sealed interface NavigationScreen {
     data object SetupScreen : NavigationScreen
 
     @Serializable
-    data object PhotoScreen : NavigationScreen
+    data object MediaScreen : NavigationScreen
 
     @Serializable
     data object AlbumScreen : NavigationScreen

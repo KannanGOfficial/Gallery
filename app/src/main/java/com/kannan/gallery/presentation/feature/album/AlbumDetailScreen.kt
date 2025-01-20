@@ -5,15 +5,18 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.ui.theme.GalleryTheme
+import com.kannan.gallery.utils.Animation
 import com.kannan.gallery.utils.ext.CollectAsEffect
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -34,8 +37,12 @@ fun SharedTransitionScope.AlbumDetailScreen(
         }
     }
 
+    val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
+    val lazyGridState = rememberLazyGridState()
+
     AnimatedContent(
         uiState.screenContentType,
+        transitionSpec = { Animation.combinedAnimation },
         label = ""
     ) { targetState ->
 
@@ -43,7 +50,6 @@ fun SharedTransitionScope.AlbumDetailScreen(
             ScreenContentType.TIMELINE -> {
                 TimelineContent(
                     modifier = modifier,
-                    currentMediaPosition = uiState.currentMediaPosition,
                     onImageClicked = { uiAction.invoke(AlbumDetailScreenUiAction.OnImageClicked(it)) },
                     onImageLongClicked = {
                         uiAction.invoke(
@@ -54,7 +60,8 @@ fun SharedTransitionScope.AlbumDetailScreen(
                     },
                     onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
                     animatedVisibilityScope = this,
-                    mediaListPagedStream = mediaListPagedStream
+                    lazyPagingItems = lazyPagingItems,
+                    lazyGridState = lazyGridState
                 )
             }
 
@@ -70,7 +77,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
                         )
                     },
                     animatedVisibilityScope = this,
-                    mediaListPagedStream = mediaListPagedStream
+                    lazyPagingItems = lazyPagingItems,
                 )
             }
         }

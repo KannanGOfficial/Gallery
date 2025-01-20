@@ -3,6 +3,7 @@ package com.kannan.gallery.presentation.feature.media.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -24,6 +25,7 @@ fun Thumbnail(
         contentDescription = contentDescription,
         contentScale = ContentScale.Crop,
         modifier = modifier
+            .fillMaxWidth()
             .combinedClickable(
                 onLongClick = onLongClick,
                 onClick = onClick

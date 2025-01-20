@@ -53,7 +53,7 @@ fun SetupNavGraph(
             }
 
 
-            composable<NavigationScreen.PhotoScreen> {
+            composable<NavigationScreen.MediaScreen> {
                 val viewModel = hiltViewModel<MediaScreenViewModel>()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
