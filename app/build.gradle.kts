@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.kannan.gallery"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.kannan.gallery"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.2.0"
 
