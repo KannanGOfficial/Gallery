@@ -38,15 +38,6 @@ class GetAllMedia @Inject constructor(@ApplicationContext val context: Context) 
                     ContentResolver.QUERY_ARG_SORT_DIRECTION,
                     ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
                 )
-                putString(
-                    ContentResolver.QUERY_ARG_SQL_SELECTION,
-                    MediaStore.Images.Media.DISPLAY_NAME + " NOT LIKE ? AND " +
-                            MediaStore.Images.Media.DATA + " NOT LIKE ?"
-                )
-                putStringArray(
-                    ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS,
-                    arrayOf("%.%", "%/.%")
-                )
 
                 putString(
                     ContentResolver.QUERY_ARG_SQL_SELECTION,
@@ -66,18 +57,21 @@ class GetAllMedia @Inject constructor(@ApplicationContext val context: Context) 
             )
 
             cursor?.use {
-                val idX = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-                val dataX = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                with(cursor) {
 
-                while (cursor.moveToNext()) {
-                    val id = cursor.getLong(idX)
-                    val data = cursor.getString(dataX)
+                    val idX = getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                    val dataX = getColumnIndex(MediaStore.MediaColumns.DATA)
 
-                    val mediaCR = MediaCR(
-                        id = id,
-                        uri = data
-                    )
-                    imageList.add(mediaCR)
+                    while (moveToNext()) {
+                        val id = getLong(idX)
+                        val data = getString(dataX)
+
+                        val mediaCR = MediaCR(
+                            id = id,
+                            uri = data
+                        )
+                        imageList.add(mediaCR)
+                    }
                 }
             }
             return@withContext imageList

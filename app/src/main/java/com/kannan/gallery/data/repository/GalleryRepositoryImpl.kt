@@ -3,6 +3,7 @@ package com.kannan.gallery.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.filter
 import androidx.paging.map
 import com.kannan.gallery.data.contentResolver.dataSource.ContentResolverDataSource
 import com.kannan.gallery.data.contentResolver.models.AlbumCR
@@ -14,6 +15,7 @@ import com.kannan.gallery.data.pagingSource.GetMediaByAlbumNamePagingSource
 import com.kannan.gallery.domain.GalleryRepository
 import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.domain.model.Media
+import com.kannan.gallery.utils.StringUtil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -30,8 +32,9 @@ class GalleryRepositoryImpl @Inject constructor(
             pagingSourceFactory = {
                 GetAllMediaPagingSource(contentResolverDataSource)
             }
-        ).flow.map {
-            it.map(MediaCR::toMedia)
+        ).flow.map { pagingData ->
+            pagingData.filter { !StringUtil.pathStartsWithDot(it.uri) }
+                .map(MediaCR::toMedia)
         }
     }
 
