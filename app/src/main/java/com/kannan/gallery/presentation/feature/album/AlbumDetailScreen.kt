@@ -88,7 +88,8 @@ fun SharedTransitionScope.AlbumDetailScreen(
                         animatedVisibilityScope = this,
                         lazyPagingItems = lazyPagingItems,
                         lazyGridState = lazyGridState,
-                        isInMediaSelectionMode = uiState.isInMediaSelectionMode
+                        isInMediaSelectionMode = uiState.isInMediaSelectionMode,
+                        selectedItemCount = uiState.selectedMediaCount
                     )
                 }
             }

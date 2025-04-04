@@ -3,4 +3,7 @@
     <string name="action_cancel">Cancel</string>
     <string name="get_started">Get Started</string>
     <string name="allow_to_manage_files">Allow to Manage All Files</string>
+    <string name="move">Move</string>
+    <string name="copy">Copy</string>
+    <string name="share">Share</string>
 </resources>

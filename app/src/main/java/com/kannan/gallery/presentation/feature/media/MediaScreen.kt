@@ -37,11 +37,8 @@ fun SharedTransitionScope.MediaScreen(
         }
     }
 
-    LaunchedEffect(uiState.screenContentType) {
-        when (uiState.screenContentType) {
-            ScreenContentType.TIMELINE -> shouldShowBottomBar.invoke(true)
-            ScreenContentType.MEDIA -> shouldShowBottomBar.invoke(false)
-        }
+    LaunchedEffect(uiState.shouldShowBottomBar) {
+        shouldShowBottomBar(uiState.shouldShowBottomBar)
     }
 
     val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
@@ -68,6 +65,7 @@ fun SharedTransitionScope.MediaScreen(
                     lazyPagingItems = lazyPagingItems,
                     lazyGridState = lazyGridState,
                     isInMediaSelectionMode = uiState.isInMediaSelectionMode,
+                    selectedItemCount = uiState.selectedMediaCount,
                     onImageClicked = { index, media ->
                         uiAction.invoke(
                             MediaScreenUiAction.OnImageClicked(

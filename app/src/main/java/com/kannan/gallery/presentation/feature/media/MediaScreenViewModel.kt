@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -36,6 +37,7 @@ class MediaScreenViewModel @Inject constructor(
     init {
         observeAndUpdateMediaList()
         observeAndUpdateIsInMediaSelectionMode()
+        observeAndUpdateShouldShowBottomBar()
     }
 
     private fun observeAndUpdateMediaList() {
@@ -52,6 +54,23 @@ class MediaScreenViewModel @Inject constructor(
                 val isInMediaSelectionMode = selectedMediaCount > 0
                 updateIsInMediaSelectionModeUiState(isInMediaSelectionMode)
             }.launchIn(viewModelScope)
+    }
+
+    private fun observeAndUpdateShouldShowBottomBar() {
+        combine(
+            uiState.map { it.screenContentType },
+            uiState.map { it.isInMediaSelectionMode }
+        ) { screenContentType, isInMediaSelectionMode ->
+            val shouldShowBottomBar = when {
+                screenContentType == ScreenContentType.MEDIA ||
+                        isInMediaSelectionMode -> false
+
+                else -> true
+            }
+
+            updateShouldShowBottomBar(shouldShowBottomBar)
+
+        }.launchIn(viewModelScope)
     }
 
 
@@ -146,6 +165,13 @@ class MediaScreenViewModel @Inject constructor(
             )
         }
 
+    private fun updateShouldShowBottomBar(shouldShowBottomBar: Boolean): Unit =
+        _uiState.update {
+            it.copy(
+                shouldShowBottomBar = shouldShowBottomBar
+            )
+        }
+
     private fun sendEvent(event: MediaScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -155,7 +181,8 @@ data class MediaScreenUiState(
     val screenContentType: ScreenContentType = ScreenContentType.TIMELINE,
     val currentMediaPosition: Int = 0,
     val isInMediaSelectionMode: Boolean = false,
-    val selectedMediaCount: Int = 0
+    val selectedMediaCount: Int = 0,
+    val shouldShowBottomBar: Boolean = true
 )
 
 sealed interface MediaScreenUiAction {
