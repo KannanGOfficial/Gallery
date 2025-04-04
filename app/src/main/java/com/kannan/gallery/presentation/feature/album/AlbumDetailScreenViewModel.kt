@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -25,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AlbumDetailScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    repository: GalleryRepository
+    private val repository: GalleryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AlbumDetailScreenUiState())
@@ -41,13 +42,24 @@ class AlbumDetailScreenViewModel @Inject constructor(
         val albumDetailScreen = savedStateHandle.toRoute<NavigationScreen.AlbumDetailScreen>()
 
         updateAlbumName(albumDetailScreen.albumName)
+        observeAndUpdateMediaList(albumDetailScreen.albumId)
+        observeAndUpdateIsInMediaSelectionMode()
+    }
 
-        repository.getMediaByAlbumName(albumDetailScreen.albumId)
+    private fun observeAndUpdateMediaList(albumId: Long) {
+        repository.getMediaByAlbumName(albumId)
             .cachedIn(viewModelScope)
             .onEach {
                 updateMediaList(it)
             }.launchIn(viewModelScope)
+    }
 
+    private fun observeAndUpdateIsInMediaSelectionMode() {
+        uiState.map { it.selectedMediaCount }
+            .onEach { selectedMediaCount ->
+                val isInMediaSelectionMode = selectedMediaCount > 0
+                updateIsInMediaSelectionModeUiState(isInMediaSelectionMode)
+            }.launchIn(viewModelScope)
     }
 
     fun onUiAction(action: AlbumDetailScreenUiAction) {
@@ -85,8 +97,8 @@ class AlbumDetailScreenViewModel @Inject constructor(
                 )
             }
 
-            is AlbumDetailScreenUiAction.UpdateMediaSelectionMode -> {
-                updateIsInMediaSelectionModeUiState(action.isInMediaSelectionMode)
+            is AlbumDetailScreenUiAction.OnSelectedItemCountChanged -> {
+                updateSelectedMediaCount(action.selectedMediaCount)
             }
         }
     }
@@ -141,6 +153,13 @@ class AlbumDetailScreenViewModel @Inject constructor(
             )
         }
 
+    private fun updateSelectedMediaCount(selectedMediaCount: Int): Unit =
+        _uiState.update {
+            it.copy(
+                selectedMediaCount = selectedMediaCount
+            )
+        }
+
     private fun sendEvent(event: AlbumDetailScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -150,7 +169,8 @@ data class AlbumDetailScreenUiState(
     val screenContentType: ScreenContentType = ScreenContentType.TIMELINE,
     val currentMediaPosition: Int = 0,
     val albumName: String = "",
-    val isInMediaSelectionMode: Boolean = false
+    val isInMediaSelectionMode: Boolean = false,
+    val selectedMediaCount: Int = 0
 )
 
 sealed interface AlbumDetailScreenUiAction {
@@ -158,8 +178,7 @@ sealed interface AlbumDetailScreenUiAction {
     data class OnImageLongClicked(val media: Media) : AlbumDetailScreenUiAction
     data object OnTimelineContentBackPressed : AlbumDetailScreenUiAction
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : AlbumDetailScreenUiAction
-    data class UpdateMediaSelectionMode(val isInMediaSelectionMode: Boolean) :
-        AlbumDetailScreenUiAction
+    data class OnSelectedItemCountChanged(val selectedMediaCount: Int) : AlbumDetailScreenUiAction
 }
 
 sealed interface AlbumDetailScreenUiEvent {

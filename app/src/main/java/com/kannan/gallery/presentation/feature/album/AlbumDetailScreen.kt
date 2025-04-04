@@ -46,8 +46,8 @@ fun SharedTransitionScope.AlbumDetailScreen(
     val lazyGridState = rememberLazyGridState()
 
     LaunchedEffect(lazyPagingItems.itemSnapshotList) {
-        val isInMediaSelectionMode = lazyPagingItems.itemSnapshotList.any { it?.isSelected == true }
-        uiAction(AlbumDetailScreenUiAction.UpdateMediaSelectionMode(isInMediaSelectionMode))
+        val selectedMediaCount = lazyPagingItems.itemSnapshotList.count { it?.isSelected == true }
+        uiAction(AlbumDetailScreenUiAction.OnSelectedItemCountChanged(selectedMediaCount))
     }
 
     AnimatedContent(
