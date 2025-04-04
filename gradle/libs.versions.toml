@@ -18,6 +18,8 @@ pagingRuntimeKtx = "3.3.6"
 ksp = "1.9.0-1.0.13"
 hiltAndroid = "2.51"
 hiltNavigationCompose = "1.2.0"
+materialIconsExtendedAndroid = "1.7.8"
+
 
 
 
@@ -45,6 +47,8 @@ androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", v
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltAndroid" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-material-icons-extended-android = { module = "androidx.compose.material:material-icons-extended-android", version.ref = "materialIconsExtendedAndroid" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

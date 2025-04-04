@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.kannan.gallery.domain.GalleryRepository
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
@@ -52,7 +53,11 @@ class AlbumDetailScreenViewModel @Inject constructor(
     fun onUiAction(action: AlbumDetailScreenUiAction) {
         when (action) {
             AlbumDetailScreenUiAction.OnTimelineContentBackPressed -> {
-                sendEvent(AlbumDetailScreenUiEvent.NavigateUp)
+                if (uiState.value.isInMediaSelectionMode) {
+                    updateAllIsSelectedState(false)
+                } else {
+                    sendEvent(AlbumDetailScreenUiEvent.NavigateUp)
+                }
             }
 
             is AlbumDetailScreenUiAction.OnMediaContentBackPressed -> {
@@ -61,15 +66,46 @@ class AlbumDetailScreenViewModel @Inject constructor(
             }
 
             is AlbumDetailScreenUiAction.OnImageClicked -> {
-                updateCurrentPosition(action.index)
 
-                updateScreenTypeUiState(ScreenContentType.MEDIA)
+                if (uiState.value.isInMediaSelectionMode) {
+                    updateIsSelectedState(
+                        id = action.media.id,
+                        isSelected = !action.media.isSelected
+                    )
+                } else {
+                    updateCurrentPosition(action.index)
+                    updateScreenTypeUiState(ScreenContentType.MEDIA)
+                }
             }
 
             is AlbumDetailScreenUiAction.OnImageLongClicked -> {
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
+            }
 
+            is AlbumDetailScreenUiAction.UpdateMediaSelectionMode -> {
+                updateIsInMediaSelectionModeUiState(action.isInMediaSelectionMode)
             }
         }
+    }
+
+    private fun updateIsSelectedState(id: Long, isSelected: Boolean) {
+        val newData = mediaListPagedStream.value.map {
+            if (it.id == id)
+                it.copy(isSelected = isSelected)
+            else
+                it
+        }
+        updateMediaList(newData)
+    }
+
+    private fun updateAllIsSelectedState(isSelected: Boolean) {
+        val newData = mediaListPagedStream.value.map {
+            it.copy(isSelected = isSelected)
+        }
+        updateMediaList(newData)
     }
 
     private fun updateMediaList(mediaList: PagingData<Media>) =
@@ -98,6 +134,13 @@ class AlbumDetailScreenViewModel @Inject constructor(
             )
         }
 
+    private fun updateIsInMediaSelectionModeUiState(isInMediaSelectionMode: Boolean): Unit =
+        _uiState.update {
+            it.copy(
+                isInMediaSelectionMode = isInMediaSelectionMode
+            )
+        }
+
     private fun sendEvent(event: AlbumDetailScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -106,14 +149,17 @@ class AlbumDetailScreenViewModel @Inject constructor(
 data class AlbumDetailScreenUiState(
     val screenContentType: ScreenContentType = ScreenContentType.TIMELINE,
     val currentMediaPosition: Int = 0,
-    val albumName: String = ""
+    val albumName: String = "",
+    val isInMediaSelectionMode: Boolean = false
 )
 
 sealed interface AlbumDetailScreenUiAction {
-    data class OnImageClicked(val index: Int) : AlbumDetailScreenUiAction
+    data class OnImageClicked(val index: Int, val media: Media) : AlbumDetailScreenUiAction
     data class OnImageLongClicked(val media: Media) : AlbumDetailScreenUiAction
     data object OnTimelineContentBackPressed : AlbumDetailScreenUiAction
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : AlbumDetailScreenUiAction
+    data class UpdateMediaSelectionMode(val isInMediaSelectionMode: Boolean) :
+        AlbumDetailScreenUiAction
 }
 
 sealed interface AlbumDetailScreenUiEvent {

@@ -47,6 +47,11 @@ fun SharedTransitionScope.MediaScreen(
     val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
 
+    LaunchedEffect(lazyPagingItems.itemSnapshotList) {
+        val isInMediaSelectionMode = lazyPagingItems.itemSnapshotList.any { it?.isSelected == true }
+        uiAction(MediaScreenUiAction.UpdateMediaSelectionMode(isInMediaSelectionMode))
+    }
+
     AnimatedContent(
         targetState = uiState.screenContentType,
         label = "",
@@ -57,12 +62,20 @@ fun SharedTransitionScope.MediaScreen(
             ScreenContentType.TIMELINE -> {
                 TimelineContent(
                     modifier = modifier,
-                    onImageClicked = { uiAction.invoke(MediaScreenUiAction.OnImageClicked(it)) },
                     onImageLongClicked = { uiAction.invoke(MediaScreenUiAction.OnImageLongClicked(it)) },
                     onBackPressed = { uiAction.invoke(MediaScreenUiAction.OnTimelineContentBackPressed) },
                     animatedVisibilityScope = this,
                     lazyPagingItems = lazyPagingItems,
-                    lazyGridState = lazyGridState
+                    lazyGridState = lazyGridState,
+                    isInMediaSelectionMode = uiState.isInMediaSelectionMode,
+                    onImageClicked = { index, media ->
+                        uiAction.invoke(
+                            MediaScreenUiAction.OnImageClicked(
+                                index = index,
+                                media = media
+                            )
+                        )
+                    }
                 )
             }
 

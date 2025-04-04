@@ -44,7 +44,11 @@ class MediaScreenViewModel @Inject constructor(
     fun onUiAction(action: MediaScreenUiAction) {
         when (action) {
             MediaScreenUiAction.OnTimelineContentBackPressed -> {
-                sendEvent(MediaScreenUiEvent.NavigateUp)
+                if (uiState.value.isInMediaSelectionMode) {
+                    updateAllIsSelectedState(false)
+                } else {
+                    sendEvent(MediaScreenUiEvent.NavigateUp)
+                }
             }
 
             is MediaScreenUiAction.OnMediaContentBackPressed -> {
@@ -54,26 +58,48 @@ class MediaScreenViewModel @Inject constructor(
 
             is MediaScreenUiAction.OnImageClicked -> {
 
-                updateCurrentPosition(action.index)
-
-                updateScreenTypeUiState(ScreenContentType.MEDIA)
+                if (uiState.value.isInMediaSelectionMode) {
+                    updateIsSelectedState(
+                        id = action.media.id,
+                        isSelected = !action.media.isSelected
+                    )
+                } else {
+                    updateCurrentPosition(action.index)
+                    updateScreenTypeUiState(ScreenContentType.MEDIA)
+                }
             }
 
             is MediaScreenUiAction.OnImageLongClicked -> {
-                val newData = mediaListPagedStream.value.map {
-                    if (it.id == action.media.id)
-                        it.copy(isSelected = true)
-                    else
-                        it
-                }
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
+            }
 
-                updateMediaList(newData)
-
+            is MediaScreenUiAction.UpdateMediaSelectionMode -> {
+                updateIsInMediaSelectionModeUiState(action.isInMediaSelectionMode)
             }
         }
     }
 
-    private fun updateMediaList(mediaList: PagingData<Media>) =
+    private fun updateIsSelectedState(id: Long, isSelected: Boolean) {
+        val newData = mediaListPagedStream.value.map {
+            if (it.id == id)
+                it.copy(isSelected = isSelected)
+            else
+                it
+        }
+        updateMediaList(newData)
+    }
+
+    private fun updateAllIsSelectedState(isSelected: Boolean) {
+        val newData = mediaListPagedStream.value.map {
+            it.copy(isSelected = isSelected)
+        }
+        updateMediaList(newData)
+    }
+
+    private fun updateMediaList(mediaList: PagingData<Media>): Unit =
         _mediaListPagedStream.update {
             mediaList
         }
@@ -92,22 +118,30 @@ class MediaScreenViewModel @Inject constructor(
             )
         }
 
+    private fun updateIsInMediaSelectionModeUiState(isInMediaSelectionMode: Boolean): Unit =
+        _uiState.update {
+            it.copy(
+                isInMediaSelectionMode = isInMediaSelectionMode
+            )
+        }
+
     private fun sendEvent(event: MediaScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
-
 }
 
 data class MediaScreenUiState(
     val screenContentType: ScreenContentType = ScreenContentType.TIMELINE,
-    val currentMediaPosition: Int = 0
+    val currentMediaPosition: Int = 0,
+    val isInMediaSelectionMode: Boolean = false
 )
 
 sealed interface MediaScreenUiAction {
-    data class OnImageClicked(val index: Int) : MediaScreenUiAction
+    data class OnImageClicked(val index: Int, val media: Media) : MediaScreenUiAction
     data class OnImageLongClicked(val media: Media) : MediaScreenUiAction
     data object OnTimelineContentBackPressed : MediaScreenUiAction
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : MediaScreenUiAction
+    data class UpdateMediaSelectionMode(val isInMediaSelectionMode: Boolean) : MediaScreenUiAction
 }
 
 sealed interface MediaScreenUiEvent {

@@ -3,11 +3,17 @@ package com.kannan.gallery.presentation.feature.media.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.kannan.gallery.presentation.components.CheckBox
 import com.kannan.gallery.presentation.components.imagePainter
 import com.kannan.gallery.ui.theme.GalleryTheme
 
@@ -18,7 +24,9 @@ fun Thumbnail(
     contentDescription: String,
     modifier: Modifier = Modifier,
     onLongClick: () -> Unit = {},
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    isSelected: Boolean = false,
+    isInMediaSelectionMode: Boolean = false
 ) {
     Image(
         painter = imagePainter(data = data),
@@ -31,6 +39,16 @@ fun Thumbnail(
                 onClick = onClick
             )
     )
+
+    if (isInMediaSelectionMode) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+            CheckBox(
+                isChecked = isSelected,
+                modifier = Modifier
+                    .padding(14.dp)
+            )
+        }
+    }
 }
 
 @Preview
@@ -39,7 +57,9 @@ private fun ThumbnailPreview() {
     GalleryTheme {
         Thumbnail(
             data = "",
-            contentDescription = ""
+            contentDescription = "",
+            isSelected = true,
+            isInMediaSelectionMode = true
         )
     }
 }
