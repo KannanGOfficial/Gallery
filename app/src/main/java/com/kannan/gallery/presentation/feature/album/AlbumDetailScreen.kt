@@ -5,8 +5,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.PagingData
@@ -14,6 +18,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
+import com.kannan.gallery.presentation.feature.album.components.AlbumDetailTopBar
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.ui.theme.GalleryTheme
 import com.kannan.gallery.utils.Animation
@@ -40,35 +45,57 @@ fun SharedTransitionScope.AlbumDetailScreen(
     val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
 
+    LaunchedEffect(lazyPagingItems.itemSnapshotList) {
+        val isInMediaSelectionMode = lazyPagingItems.itemSnapshotList.any { it?.isSelected == true }
+        uiAction(AlbumDetailScreenUiAction.UpdateMediaSelectionMode(isInMediaSelectionMode))
+    }
+
     AnimatedContent(
         uiState.screenContentType,
         transitionSpec = { Animation.combinedAnimation },
-        label = ""
+        label = "",
+        modifier = modifier
     ) { targetState ->
 
         when (targetState) {
             ScreenContentType.TIMELINE -> {
-                TimelineContent(
-                    modifier = modifier,
-                    onImageClicked = { uiAction.invoke(AlbumDetailScreenUiAction.OnImageClicked(it)) },
-                    onImageLongClicked = {
-                        uiAction.invoke(
-                            AlbumDetailScreenUiAction.OnImageLongClicked(
-                                it
-                            )
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        AlbumDetailTopBar(
+                            title = uiState.albumName
                         )
-                    },
-                    onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
-                    animatedVisibilityScope = this,
-                    lazyPagingItems = lazyPagingItems,
-                    lazyGridState = lazyGridState
-                )
+                    }
+                ) { paddingValues ->
+                    TimelineContent(
+                        modifier = Modifier.padding(paddingValues),
+                        onImageClicked = { index, media ->
+                            uiAction.invoke(
+                                AlbumDetailScreenUiAction.OnImageClicked(
+                                    index = index,
+                                    media = media
+                                )
+                            )
+                        },
+                        onImageLongClicked = {
+                            uiAction.invoke(
+                                AlbumDetailScreenUiAction.OnImageLongClicked(
+                                    it
+                                )
+                            )
+                        },
+                        onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
+                        animatedVisibilityScope = this,
+                        lazyPagingItems = lazyPagingItems,
+                        lazyGridState = lazyGridState,
+                        isInMediaSelectionMode = uiState.isInMediaSelectionMode
+                    )
+                }
             }
 
             ScreenContentType.MEDIA -> {
                 MediaContent(
                     initialPagerPosition = uiState.currentMediaPosition,
-                    modifier = modifier,
                     onBackPressed = {
                         uiAction.invoke(
                             AlbumDetailScreenUiAction.OnMediaContentBackPressed(
@@ -95,7 +122,8 @@ private fun AlbumDetailScreenPreview() {
             AnimatedVisibility(true) {
                 AlbumDetailScreen(
                     uiState = AlbumDetailScreenUiState(
-                        screenContentType = ScreenContentType.MEDIA
+                        screenContentType = ScreenContentType.TIMELINE,
+                        albumName = "Downloads"
                     ),
                     uiEvent = emptyFlow(),
                     uiAction = {},

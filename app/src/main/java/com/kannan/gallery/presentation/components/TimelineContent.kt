@@ -30,9 +30,10 @@ fun SharedTransitionScope.TimelineContent(
     modifier: Modifier = Modifier,
     lazyGridState: LazyGridState,
     lazyPagingItems: LazyPagingItems<Media>,
-    onImageClicked: (Int) -> Unit,
+    onImageClicked: (Int, Media) -> Unit,
     onImageLongClicked: (Media) -> Unit,
     onBackPressed: () -> Unit,
+    isInMediaSelectionMode: Boolean,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 
@@ -59,11 +60,13 @@ fun SharedTransitionScope.TimelineContent(
                     data = data.uri,
                     contentDescription = data.uri,
                     onClick = {
-                        onImageClicked.invoke(index)
+                        onImageClicked.invoke(index, data)
                     },
                     onLongClick = {
                         onImageLongClicked.invoke(data)
-                    }
+                    },
+                    isSelected = data.isSelected,
+                    isInMediaSelectionMode = isInMediaSelectionMode
                 )
             }
 
@@ -80,11 +83,12 @@ private fun TimelineContentPreview() {
             AnimatedVisibility(true) {
                 TimelineContent(
                     onBackPressed = {},
-                    onImageClicked = {},
+                    onImageClicked = { _, _ -> },
                     onImageLongClicked = {},
                     animatedVisibilityScope = this,
                     lazyPagingItems = flowOf(PagingData.empty<Media>()).collectAsLazyPagingItems(),
-                    lazyGridState = rememberLazyGridState()
+                    lazyGridState = rememberLazyGridState(),
+                    isInMediaSelectionMode = false
                 )
             }
         }
