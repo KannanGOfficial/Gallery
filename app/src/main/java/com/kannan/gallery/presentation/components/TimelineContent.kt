@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,44 +36,62 @@ fun SharedTransitionScope.TimelineContent(
     onImageLongClicked: (Media) -> Unit,
     onBackPressed: () -> Unit,
     isInMediaSelectionMode: Boolean,
+    selectedItemCount: Int,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 
     BackHandler(onBack = onBackPressed)
 
-    LazyVerticalGrid(
-        modifier = modifier.fillMaxSize(),
-        state = lazyGridState,
-        columns = GridCells.Fixed(3)
+    Box(
+        modifier = modifier.fillMaxSize()
     ) {
-        items(
-            count = lazyPagingItems.itemCount
-        ) { index: Int ->
-            val data = lazyPagingItems[index]
-            data?.let {
-                Thumbnail(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .sharedBounds(
-                            sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-                        ),
-                    data = data.uri,
-                    contentDescription = data.uri,
-                    onClick = {
-                        onImageClicked.invoke(index, data)
-                    },
-                    onLongClick = {
-                        onImageLongClicked.invoke(data)
-                    },
-                    isSelected = data.isSelected,
-                    isInMediaSelectionMode = isInMediaSelectionMode
-                )
-            }
+        LazyVerticalGrid(
+            state = lazyGridState,
+            columns = GridCells.Fixed(3)
+        ) {
+            items(
+                count = lazyPagingItems.itemCount
+            ) { index: Int ->
+                val data = lazyPagingItems[index]
+                data?.let {
+                    Thumbnail(
+                        modifier = Modifier
+                            .size(200.dp)
+                            .sharedBounds(
+                                sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                            ),
+                        data = data.uri,
+                        contentDescription = data.uri,
+                        onClick = {
+                            onImageClicked.invoke(index, data)
+                        },
+                        onLongClick = {
+                            onImageLongClicked.invoke(data)
+                        },
+                        isSelected = data.isSelected,
+                        isInMediaSelectionMode = isInMediaSelectionMode
+                    )
+                }
 
+            }
+        }
+
+        if (isInMediaSelectionMode) {
+            SelectionSheet(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter),
+                selectedItemCount = selectedItemCount,
+                onCopyButtonClick = {},
+                onMoveButtonClick = {},
+                onCloseButtonClick = {},
+                onShareButtonClick = {}
+            )
         }
     }
+
+
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -88,7 +108,8 @@ private fun TimelineContentPreview() {
                     animatedVisibilityScope = this,
                     lazyPagingItems = flowOf(PagingData.empty<Media>()).collectAsLazyPagingItems(),
                     lazyGridState = rememberLazyGridState(),
-                    isInMediaSelectionMode = false
+                    isInMediaSelectionMode = false,
+                    selectedItemCount = 2
                 )
             }
         }
