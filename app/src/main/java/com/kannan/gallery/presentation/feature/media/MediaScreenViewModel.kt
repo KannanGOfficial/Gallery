@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MediaScreenViewModel @Inject constructor(
-    repository: GalleryRepository
+    private val repository: GalleryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MediaScreenUiState())
@@ -33,10 +34,23 @@ class MediaScreenViewModel @Inject constructor(
     val mediaListPagedStream = _mediaListPagedStream.asStateFlow()
 
     init {
+        observeAndUpdateMediaList()
+        observeAndUpdateIsInMediaSelectionMode()
+    }
+
+    private fun observeAndUpdateMediaList() {
         repository.getAllMediaPagedStream()
             .cachedIn(viewModelScope)
             .onEach {
                 updateMediaList(it)
+            }.launchIn(viewModelScope)
+    }
+
+    private fun observeAndUpdateIsInMediaSelectionMode() {
+        uiState.map { it.selectedMediaCount }
+            .onEach { selectedMediaCount ->
+                val isInMediaSelectionMode = selectedMediaCount > 0
+                updateIsInMediaSelectionModeUiState(isInMediaSelectionMode)
             }.launchIn(viewModelScope)
     }
 
@@ -76,8 +90,8 @@ class MediaScreenViewModel @Inject constructor(
                 )
             }
 
-            is MediaScreenUiAction.UpdateMediaSelectionMode -> {
-                updateIsInMediaSelectionModeUiState(action.isInMediaSelectionMode)
+            is MediaScreenUiAction.OnSelectedItemCountChanged -> {
+                updateSelectedMediaCount(action.selectedMediaCount)
             }
         }
     }
@@ -125,6 +139,13 @@ class MediaScreenViewModel @Inject constructor(
             )
         }
 
+    private fun updateSelectedMediaCount(selectedMediaCount: Int): Unit =
+        _uiState.update {
+            it.copy(
+                selectedMediaCount = selectedMediaCount
+            )
+        }
+
     private fun sendEvent(event: MediaScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -133,7 +154,8 @@ class MediaScreenViewModel @Inject constructor(
 data class MediaScreenUiState(
     val screenContentType: ScreenContentType = ScreenContentType.TIMELINE,
     val currentMediaPosition: Int = 0,
-    val isInMediaSelectionMode: Boolean = false
+    val isInMediaSelectionMode: Boolean = false,
+    val selectedMediaCount: Int = 0
 )
 
 sealed interface MediaScreenUiAction {
@@ -141,7 +163,7 @@ sealed interface MediaScreenUiAction {
     data class OnImageLongClicked(val media: Media) : MediaScreenUiAction
     data object OnTimelineContentBackPressed : MediaScreenUiAction
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : MediaScreenUiAction
-    data class UpdateMediaSelectionMode(val isInMediaSelectionMode: Boolean) : MediaScreenUiAction
+    data class OnSelectedItemCountChanged(val selectedMediaCount: Int) : MediaScreenUiAction
 }
 
 sealed interface MediaScreenUiEvent {

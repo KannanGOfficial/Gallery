@@ -33,6 +33,9 @@ class GalleryRepositoryImpl @Inject constructor(
                 GetAllMediaPagingSource(contentResolverDataSource)
             }
         ).flow.map { pagingData ->
+            /**
+             * To filter out hidden files
+             * */
             pagingData.filter { !StringUtil.pathStartsWithDot(it.uri) }
                 .map(MediaCR::toMedia)
         }

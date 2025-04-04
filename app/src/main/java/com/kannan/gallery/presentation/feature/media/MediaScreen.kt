@@ -48,8 +48,8 @@ fun SharedTransitionScope.MediaScreen(
     val lazyGridState = rememberLazyGridState()
 
     LaunchedEffect(lazyPagingItems.itemSnapshotList) {
-        val isInMediaSelectionMode = lazyPagingItems.itemSnapshotList.any { it?.isSelected == true }
-        uiAction(MediaScreenUiAction.UpdateMediaSelectionMode(isInMediaSelectionMode))
+        val selectedMediaCount = lazyPagingItems.itemSnapshotList.count { it?.isSelected == true }
+        uiAction(MediaScreenUiAction.OnSelectedItemCountChanged(selectedMediaCount))
     }
 
     AnimatedContent(
