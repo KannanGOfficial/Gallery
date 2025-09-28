@@ -9,6 +9,7 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -56,6 +57,7 @@ fun SharedTransitionScope.MediaContent(
                 data = data.uri,
                 contentDescription = data.uri,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
                         animatedVisibilityScope = animatedVisibilityScope,
