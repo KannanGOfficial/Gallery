@@ -16,7 +16,7 @@ class GetMediaByAlbumName @Inject constructor(
 ) {
 
     private val queryUri =
-        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
     private val projection = arrayOf(
         MediaStore.MediaColumns._ID,
@@ -31,8 +31,8 @@ class GetMediaByAlbumName @Inject constructor(
 
             // TODO: To remove the media type Image condition once you implemented the video
             val selection =
-                "${MediaStore.Files.FileColumns.MEDIA_TYPE}=${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}" +
-                        " AND ${MediaStore.Files.FileColumns.BUCKET_ID}='$albumId'"
+//                "${MediaStore.Images.Media.MIME_TYPE}=${MediaStore.Media.FileColumns.MEDIA_TYPE_IMAGE}" +
+                "${MediaStore.Images.Media.BUCKET_ID}='$albumId'"
 
             val bundle = Bundle().apply {
                 putInt(ContentResolver.QUERY_ARG_LIMIT, pageSize)

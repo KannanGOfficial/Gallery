@@ -13,7 +13,7 @@ import javax.inject.Inject
 // TODO: Need to filter out the Hidden files
 class GetAllMedia @Inject constructor(@ApplicationContext val context: Context) {
     private val queryUri =
-        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
     private val projection = arrayOf(
         MediaStore.MediaColumns._ID,
@@ -23,7 +23,7 @@ class GetAllMedia @Inject constructor(@ApplicationContext val context: Context) 
     suspend fun invoke(pageNumber: Int, pageSize: Int): List<MediaCR> {
         return withContext(Dispatchers.IO) {
 
-            val imageList: ArrayList<MediaCR> = arrayListOf()
+            val imageList = mutableSetOf<MediaCR>()
 
             val offset = pageNumber * pageSize
 
@@ -74,7 +74,7 @@ class GetAllMedia @Inject constructor(@ApplicationContext val context: Context) 
                     }
                 }
             }
-            return@withContext imageList
+            return@withContext imageList.toList()
         }
     }
 }

@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class GetAllAlbum @Inject constructor(@ApplicationContext private val context: Context) {
     private val queryUri =
-        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
     private val projection = arrayOf(
         MediaStore.MediaColumns.BUCKET_ID,

@@ -38,13 +38,14 @@ class MediaScreenViewModel @Inject constructor(
         observeAndUpdateMediaList()
         observeAndUpdateIsInMediaSelectionMode()
         observeAndUpdateShouldShowBottomBar()
+//        observeAndUpdateSelectionMediaCount()
     }
 
     private fun observeAndUpdateMediaList() {
         repository.getAllMediaPagedStream()
             .cachedIn(viewModelScope)
             .onEach {
-                updateMediaList(it)
+                updateMediaListPaged(it)
             }.launchIn(viewModelScope)
     }
 
@@ -67,10 +68,17 @@ class MediaScreenViewModel @Inject constructor(
 
                 else -> true
             }
-
             updateShouldShowBottomBar(shouldShowBottomBar)
 
         }.launchIn(viewModelScope)
+    }
+
+    private fun observeAndUpdateSelectionMediaCount() {
+        uiState.map { it.mediaList }
+            .onEach { mediaList ->
+                val selectedMediaCount = mediaList.count { it.isSelected }
+                updateSelectedMediaCount(selectedMediaCount)
+            }.launchIn(viewModelScope)
     }
 
 
@@ -112,6 +120,10 @@ class MediaScreenViewModel @Inject constructor(
             is MediaScreenUiAction.OnSelectedItemCountChanged -> {
                 updateSelectedMediaCount(action.selectedMediaCount)
             }
+
+            is MediaScreenUiAction.OnNewMediaListPaged -> {
+                updateMediaList(action.mediaList)
+            }
         }
     }
 
@@ -122,17 +134,17 @@ class MediaScreenViewModel @Inject constructor(
             else
                 it
         }
-        updateMediaList(newData)
+        updateMediaListPaged(newData)
     }
 
     private fun updateAllIsSelectedState(isSelected: Boolean) {
         val newData = mediaListPagedStream.value.map {
             it.copy(isSelected = isSelected)
         }
-        updateMediaList(newData)
+        updateMediaListPaged(newData)
     }
 
-    private fun updateMediaList(mediaList: PagingData<Media>): Unit =
+    private fun updateMediaListPaged(mediaList: PagingData<Media>): Unit =
         _mediaListPagedStream.update {
             mediaList
         }
@@ -172,6 +184,13 @@ class MediaScreenViewModel @Inject constructor(
             )
         }
 
+    private fun updateMediaList(mediaList: Set<Media>): Unit =
+        _uiState.update {
+            it.copy(
+                mediaList = mediaList
+            )
+        }
+
     private fun sendEvent(event: MediaScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -182,7 +201,8 @@ data class MediaScreenUiState(
     val currentMediaPosition: Int = 0,
     val isInMediaSelectionMode: Boolean = false,
     val selectedMediaCount: Int = 0,
-    val shouldShowBottomBar: Boolean = true
+    val shouldShowBottomBar: Boolean = true,
+    val mediaList: Set<Media> = emptySet()
 )
 
 sealed interface MediaScreenUiAction {
@@ -191,6 +211,7 @@ sealed interface MediaScreenUiAction {
     data object OnTimelineContentBackPressed : MediaScreenUiAction
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : MediaScreenUiAction
     data class OnSelectedItemCountChanged(val selectedMediaCount: Int) : MediaScreenUiAction
+    data class OnNewMediaListPaged(val mediaList: Set<Media>) : MediaScreenUiAction
 }
 
 sealed interface MediaScreenUiEvent {
