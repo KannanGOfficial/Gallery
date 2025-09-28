@@ -50,7 +50,11 @@ fun SharedTransitionScope.TimelineContent(
             columns = GridCells.Fixed(3)
         ) {
             items(
-                count = lazyPagingItems.itemCount
+                count = lazyPagingItems.itemCount,
+                key = { index ->
+                    val media = lazyPagingItems.peek(index)
+                    media?.uri ?: index
+                }
             ) { index: Int ->
                 val data = lazyPagingItems[index]
                 data?.let {
@@ -74,7 +78,6 @@ fun SharedTransitionScope.TimelineContent(
                         isInMediaSelectionMode = isInMediaSelectionMode
                     )
                 }
-
             }
         }
 
