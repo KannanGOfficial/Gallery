@@ -47,6 +47,11 @@ fun SharedTransitionScope.MediaScreen(
     LaunchedEffect(lazyPagingItems.itemSnapshotList) {
         val selectedMediaCount = lazyPagingItems.itemSnapshotList.count { it?.isSelected == true }
         uiAction(MediaScreenUiAction.OnSelectedItemCountChanged(selectedMediaCount))
+        /*uiAction(
+            MediaScreenUiAction.OnNewMediaListPaged(
+                (lazyPagingItems.itemSnapshotList.toList().filterNotNull().toSet())
+            )
+        )*/
     }
 
     AnimatedContent(

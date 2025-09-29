@@ -1,13 +1,16 @@
 package com.kannan.gallery.presentation.feature.album
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kannan.gallery.R
 import com.kannan.gallery.presentation.feature.album.components.AlbumCard
 import com.kannan.gallery.presentation.navigation.NavigationScreen
 import com.kannan.gallery.ui.theme.GalleryTheme
@@ -32,7 +35,8 @@ fun AlbumScreen(
 
 
     LazyVerticalGrid(
-        modifier = modifier,
+        modifier = modifier
+            .background(colorResource(R.color.night)),
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp)
     ) {

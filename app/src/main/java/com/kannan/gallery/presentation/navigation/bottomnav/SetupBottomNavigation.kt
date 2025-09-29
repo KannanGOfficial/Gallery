@@ -6,10 +6,14 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.kannan.gallery.R
 import com.kannan.gallery.ui.theme.GalleryTheme
 import com.kannan.gallery.utils.ext.getRoute
 
@@ -30,12 +34,18 @@ fun SetupBottomNavigation(
             targetOffsetY = { it }  // Slide out to the bottom
         )
     ) {
-        NavigationBar(modifier = modifier) {
+        NavigationBar(
+            modifier = modifier,
+            containerColor = colorResource(R.color.night)
+        ) {
             BottomNavigationItem.entries.forEachIndexed { _, bottomNavigationItems ->
                 val isSelected =
                     currentDestination == bottomNavigationItems.screen::class.getRoute()
 
                 NavigationBarItem(
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.Transparent
+                    ),
                     selected = isSelected,
                     onClick = { onClickedBottomNavigationItem.invoke(bottomNavigationItems) },
                     icon = {
@@ -44,6 +54,7 @@ fun SetupBottomNavigation(
                                 id = if (isSelected) bottomNavigationItems.selectedIcon
                                 else bottomNavigationItems.unSelectedIcon
                             ),
+                            tint = Color.Unspecified,
                             contentDescription = null,
                         )
                     })
