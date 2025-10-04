@@ -62,6 +62,7 @@ fun SetupNavGraph(
                     uiEvent = viewModel.uiEvent,
                     uiAction = viewModel::onUiAction,
                     mediaListPagedStream = viewModel.mediaListPagedStream,
+                    mediaListUiModel = viewModel.mediaListUiModelPagedStream,
                     navigateUpCallback = navHostController::navigateUp,
                     shouldShowBottomBar = shouldShowBottomBar
                 )
@@ -88,6 +89,7 @@ fun SetupNavGraph(
                     uiEvent = viewModel.uiEvent,
                     uiAction = viewModel::onUiAction,
                     mediaListPagedStream = viewModel.mediaListPagedStream,
+                    mediaListUiModel = viewModel.mediaListUiModelPagedStream,
                     navigateUpCallback = navHostController::navigateUp
                 )
             }
