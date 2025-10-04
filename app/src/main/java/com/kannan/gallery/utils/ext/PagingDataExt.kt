@@ -24,7 +24,7 @@ fun insertLineSeparator(
 
         before == null -> {
             MediaUiModel.Header(
-                title = "today",
+                title = "Today",
                 id = "separator_${before?.item?.id}_${after.item.id}"
             )
         }

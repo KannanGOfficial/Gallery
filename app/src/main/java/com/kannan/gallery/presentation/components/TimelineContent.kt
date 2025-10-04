@@ -6,16 +6,16 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +51,9 @@ fun SharedTransitionScope.TimelineContent(
         modifier = modifier.fillMaxSize()
     ) {
         LazyVerticalGrid(
+            contentPadding = PaddingValues(10.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             state = lazyGridState,
             columns = GridCells.Fixed(3)
         ) {
@@ -98,9 +101,8 @@ fun SharedTransitionScope.TimelineContent(
                         }
 
                         is MediaUiModel.Header -> {
-                            Text(
-                                text = data.title,
-                                modifier = Modifier.fillMaxWidth()
+                            DateChip(
+                                text = data.title
                             )
                         }
                     }

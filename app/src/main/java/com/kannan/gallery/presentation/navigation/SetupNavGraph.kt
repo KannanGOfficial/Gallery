@@ -2,15 +2,18 @@ package com.kannan.gallery.presentation.navigation
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.kannan.gallery.R
 import com.kannan.gallery.presentation.feature.album.AlbumDetailScreen
 import com.kannan.gallery.presentation.feature.album.AlbumDetailScreenViewModel
 import com.kannan.gallery.presentation.feature.album.AlbumScreen
@@ -58,6 +61,7 @@ fun SetupNavGraph(
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                 MediaScreen(
+                    modifier = Modifier.background(color = colorResource(R.color.night)),
                     uiState = uiState,
                     uiEvent = viewModel.uiEvent,
                     uiAction = viewModel::onUiAction,
