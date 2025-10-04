@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
 import com.kannan.gallery.data.contentResolver.models.MediaCR
+import com.kannan.gallery.utils.ext.getDate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,6 +22,7 @@ class GetMediaByAlbumName @Inject constructor(
     private val projection = arrayOf(
         MediaStore.MediaColumns._ID,
         MediaStore.MediaColumns.DATA,
+        MediaStore.MediaColumns.DATE_MODIFIED
     )
 
     suspend fun invoke(albumId: Long, pageNumber: Int, pageSize: Int): List<MediaCR> {
@@ -58,14 +60,18 @@ class GetMediaByAlbumName @Inject constructor(
             cursor?.use {
                 val idX = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                 val dataX = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                val dateModifiedX =
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED)
 
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idX)
                     val data = cursor.getString(dataX)
+                    val dateModified = cursor.getLong(dateModifiedX)
 
                     val mediaCR = MediaCR(
                         id = id,
-                        uri = data
+                        uri = data,
+                        dateModified = dateModified.getDate()
                     )
                     mediaList.add(mediaCR)
                 }

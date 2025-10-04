@@ -4,10 +4,12 @@ import com.kannan.gallery.domain.model.Media
 
 data class MediaCR(
     val id: Long,
-    val uri: String
+    val uri: String,
+    val dateModified: String
 )
 
 fun MediaCR.toMedia() = Media(
     id = id,
-    uri = uri
+    uri = uri,
+    dateModified = dateModified
 )

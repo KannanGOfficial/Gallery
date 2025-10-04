@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
+import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
 import com.kannan.gallery.utils.Animation
@@ -27,6 +28,7 @@ fun SharedTransitionScope.MediaScreen(
     uiEvent: Flow<MediaScreenUiEvent>,
     uiAction: (MediaScreenUiAction) -> Unit,
     mediaListPagedStream: Flow<PagingData<Media>>,
+    mediaListUiModel: Flow<PagingData<MediaUiModel>>,
     shouldShowBottomBar: (Boolean) -> Unit,
     navigateUpCallback: () -> Unit
 ) {
@@ -42,6 +44,7 @@ fun SharedTransitionScope.MediaScreen(
     }
 
     val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
+    val lazyPagingUiModel = mediaListUiModel.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
 
     LaunchedEffect(lazyPagingItems.itemSnapshotList) {
@@ -68,6 +71,7 @@ fun SharedTransitionScope.MediaScreen(
                     onBackPressed = { uiAction.invoke(MediaScreenUiAction.OnTimelineContentBackPressed) },
                     animatedVisibilityScope = this,
                     lazyPagingItems = lazyPagingItems,
+                    lazyPagingUiModel = lazyPagingUiModel,
                     lazyGridState = lazyGridState,
                     isInMediaSelectionMode = uiState.isInMediaSelectionMode,
                     selectedItemCount = uiState.selectedMediaCount,
@@ -114,7 +118,8 @@ private fun MediaScreenPreview() {
             uiAction = {},
             navigateUpCallback = {},
             shouldShowBottomBar = {},
-            mediaListPagedStream = emptyFlow()
+            mediaListPagedStream = emptyFlow(),
+            mediaListUiModel = emptyFlow()
         )
     }
 }

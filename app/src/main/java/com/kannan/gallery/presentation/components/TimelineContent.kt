@@ -8,11 +8,14 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +25,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
+import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.feature.media.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
 import kotlinx.coroutines.flow.flowOf
@@ -32,6 +36,7 @@ fun SharedTransitionScope.TimelineContent(
     modifier: Modifier = Modifier,
     lazyGridState: LazyGridState,
     lazyPagingItems: LazyPagingItems<Media>,
+    lazyPagingUiModel: LazyPagingItems<MediaUiModel>,
     onImageClicked: (Int, Media) -> Unit,
     onImageLongClicked: (Media) -> Unit,
     onBackPressed: () -> Unit,
@@ -50,33 +55,55 @@ fun SharedTransitionScope.TimelineContent(
             columns = GridCells.Fixed(3)
         ) {
             items(
-                count = lazyPagingItems.itemCount,
+                count = lazyPagingUiModel.itemCount,
                 key = { index ->
-                    val media = lazyPagingItems.peek(index)
-                    media?.uri ?: index
+                    val uiModel = lazyPagingUiModel.peek(index)
+                    uiModel?.key ?: index
+                },
+                span = { index ->
+                    val uiModel = lazyPagingUiModel.peek(index)
+                    GridItemSpan(
+                        when (uiModel) {
+                            is MediaUiModel.Header -> maxLineSpan
+                            else -> 1
+                        }
+                    )
                 }
             ) { index: Int ->
-                val data = lazyPagingItems[index]
+                val data = lazyPagingUiModel[index]
                 data?.let {
-                    Thumbnail(
-                        modifier = Modifier
-                            .size(200.dp)
-                            .sharedBounds(
-                                sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
-                                animatedVisibilityScope = animatedVisibilityScope,
-                                resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-                            ),
-                        data = data.uri,
-                        contentDescription = data.uri,
-                        onClick = {
-                            onImageClicked.invoke(index, data)
-                        },
-                        onLongClick = {
-                            onImageLongClicked.invoke(data)
-                        },
-                        isSelected = data.isSelected,
-                        isInMediaSelectionMode = isInMediaSelectionMode
-                    )
+                    when (data) {
+                        is MediaUiModel.Item -> {
+                            Thumbnail(
+                                modifier = Modifier
+                                    .size(200.dp)
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(key = "image/ ${data.item.id}"),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                        resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                                    ),
+                                data = data.item.uri,
+                                contentDescription = data.item.uri,
+                                onClick = {
+                                    val position =
+                                        lazyPagingItems.itemSnapshotList.indexOf(data.item)
+                                    onImageClicked.invoke(position, data.item)
+                                },
+                                onLongClick = {
+                                    onImageLongClicked.invoke(data.item)
+                                },
+                                isSelected = data.item.isSelected,
+                                isInMediaSelectionMode = isInMediaSelectionMode
+                            )
+                        }
+
+                        is MediaUiModel.Header -> {
+                            Text(
+                                text = data.title,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -109,6 +136,7 @@ private fun TimelineContentPreview() {
                     onImageClicked = { _, _ -> },
                     onImageLongClicked = {},
                     animatedVisibilityScope = this,
+                    lazyPagingUiModel = flowOf(PagingData.empty<MediaUiModel>()).collectAsLazyPagingItems(),
                     lazyPagingItems = flowOf(PagingData.empty<Media>()).collectAsLazyPagingItems(),
                     lazyGridState = rememberLazyGridState(),
                     isInMediaSelectionMode = false,

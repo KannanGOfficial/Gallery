@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
+import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
 import com.kannan.gallery.presentation.feature.album.components.AlbumDetailTopBar
@@ -33,6 +34,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
     uiState: AlbumDetailScreenUiState,
     uiEvent: Flow<AlbumDetailScreenUiEvent>,
     mediaListPagedStream: Flow<PagingData<Media>>,
+    mediaListUiModel: Flow<PagingData<MediaUiModel>>,
     uiAction: (AlbumDetailScreenUiAction) -> Unit,
     navigateUpCallback: () -> Unit
 ) {
@@ -43,6 +45,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
     }
 
     val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
+    val lazyPagingUiModel = mediaListUiModel.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
 
     LaunchedEffect(lazyPagingItems.itemSnapshotList) {
@@ -86,6 +89,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
                         },
                         onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
                         animatedVisibilityScope = this,
+                        lazyPagingUiModel = lazyPagingUiModel,
                         lazyPagingItems = lazyPagingItems,
                         lazyGridState = lazyGridState,
                         isInMediaSelectionMode = uiState.isInMediaSelectionMode,
@@ -129,7 +133,8 @@ private fun AlbumDetailScreenPreview() {
                     uiEvent = emptyFlow(),
                     uiAction = {},
                     navigateUpCallback = {},
-                    mediaListPagedStream = emptyFlow()
+                    mediaListPagedStream = emptyFlow(),
+                    mediaListUiModel = emptyFlow()
                 )
             }
         }

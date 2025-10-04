@@ -6,11 +6,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.kannan.gallery.domain.GalleryRepository
 import com.kannan.gallery.domain.model.Media
+import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.presentation.navigation.NavigationScreen
+import com.kannan.gallery.utils.ext.insertLineSeparator
+import com.kannan.gallery.utils.ext.mapAsMediaUiModelItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +39,10 @@ class AlbumDetailScreenViewModel @Inject constructor(
     private val _mediaListPagedStream = MutableStateFlow<PagingData<Media>>(PagingData.empty())
     val mediaListPagedStream = _mediaListPagedStream.asStateFlow()
 
+    private val _mediaListUiModelPagedStream =
+        MutableStateFlow<PagingData<MediaUiModel>>(PagingData.empty())
+    val mediaListUiModelPagedStream = _mediaListUiModelPagedStream.asStateFlow()
+
     private val _uiEvent = Channel<AlbumDetailScreenUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -42,8 +50,19 @@ class AlbumDetailScreenViewModel @Inject constructor(
         val albumDetailScreen = savedStateHandle.toRoute<NavigationScreen.AlbumDetailScreen>()
 
         updateAlbumName(albumDetailScreen.albumName)
+        observeAndUpdateMediaListUiModel()
         observeAndUpdateMediaList(albumDetailScreen.albumId)
         observeAndUpdateIsInMediaSelectionMode()
+    }
+
+    private fun observeAndUpdateMediaListUiModel() {
+        mediaListPagedStream
+            .map { it.mapAsMediaUiModelItem() }
+            .map { it.insertSeparators(generator = ::insertLineSeparator) }
+            .onEach {
+                updateMediaListUiModel(it)
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun observeAndUpdateMediaList(albumId: Long) {
@@ -159,6 +178,9 @@ class AlbumDetailScreenViewModel @Inject constructor(
                 selectedMediaCount = selectedMediaCount
             )
         }
+
+    private fun updateMediaListUiModel(mediaListUiModel: PagingData<MediaUiModel>): Unit =
+        _mediaListUiModelPagedStream.update { mediaListUiModel }
 
     private fun sendEvent(event: AlbumDetailScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
