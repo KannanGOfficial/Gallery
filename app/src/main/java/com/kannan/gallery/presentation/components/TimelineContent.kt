@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
@@ -79,12 +80,14 @@ fun SharedTransitionScope.TimelineContent(
                         is MediaUiModel.Item -> {
                             Thumbnail(
                                 modifier = Modifier
-                                    .size(200.dp)
+                                    .size(130.dp, 150.dp)
                                     .sharedBounds(
                                         sharedContentState = rememberSharedContentState(key = "image/ ${data.item.id}"),
                                         animatedVisibilityScope = animatedVisibilityScope,
                                         resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
                                     ),
+                                crossFade = true,
+                                contentScale = ContentScale.Crop,
                                 data = data.item.uri,
                                 contentDescription = data.item.uri,
                                 onClick = {

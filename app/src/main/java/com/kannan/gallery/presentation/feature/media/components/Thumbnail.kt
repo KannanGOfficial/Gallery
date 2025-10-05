@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import coil.size.Scale
+import com.kannan.gallery.R
 import com.kannan.gallery.presentation.components.CheckBox
 import com.kannan.gallery.ui.theme.GalleryTheme
 import com.kannan.gallery.utils.MediaEqualityDelegate
@@ -33,6 +33,8 @@ fun Thumbnail(
     onLongClick: () -> Unit = {},
     onClick: () -> Unit = {},
     isSelected: Boolean = false,
+    contentScale: ContentScale = ContentScale.FillWidth,
+    crossFade: Boolean = false,
     isInMediaSelectionMode: Boolean = false
 ) {
 
@@ -40,18 +42,18 @@ fun Thumbnail(
         model = ImageRequest.Builder(LocalContext.current)
             .data(data)
             .memoryCachePolicy(CachePolicy.ENABLED)
-            .crossfade(true)
+            .crossfade(crossFade)
+            .placeholder(R.color.eerie_black)
             .placeholderMemoryCacheKey(data)
-            .scale(Scale.FIT)
             .build(),
         modelEqualityDelegate = MediaEqualityDelegate(),
-        contentScale = ContentScale.FillBounds,
+        contentScale = contentScale,
         filterQuality = FilterQuality.None
     )
     Image(
         painter = painter,
         contentDescription = contentDescription,
-        contentScale = ContentScale.Crop,
+        contentScale = contentScale,
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .combinedClickable(
