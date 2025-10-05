@@ -16,28 +16,16 @@ fun insertLineSeparator(
     before: MediaUiModel.Item?,
     after: MediaUiModel.Item?
 ): MediaUiModel? {
-    val afterDateStr = after?.item?.dateModified
+
+    if (after == null) return null
+
+    val afterDateStr = after.item.dateModified
     val beforeDateStr = before?.item?.dateModified
 
-    return when {
-        afterDateStr == null -> null
-
-        before == null -> {
-            MediaUiModel.Header(
-                title = "Today",
-                id = "separator_${before?.item?.id}_${after.item.id}"
-            )
-        }
-
-        beforeDateStr == null -> null
-
-        (afterDateStr < beforeDateStr) -> {
-            MediaUiModel.Header(
-                title = afterDateStr,
-                id = "separator_${before.item.id}_${after.item.id}"
-            )
-        }
-
-        else -> null
-    }
+    return if (beforeDateStr != afterDateStr)
+        MediaUiModel.Header(
+            title = afterDateStr,
+            id = "separator_${before?.item?.id}_${after.item.id}"
+        )
+    else null
 }

@@ -27,7 +27,7 @@ class GalleryRepositoryImpl @Inject constructor(
     override fun getAllMediaPagedStream(): Flow<PagingData<Media>> {
         return Pager(
             config = PagingConfig(
-                pageSize = 10
+                pageSize = 30
             ),
             pagingSourceFactory = {
                 GetAllMediaPagingSource(contentResolverDataSource)
