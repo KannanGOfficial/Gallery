@@ -5,16 +5,17 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.kannan.gallery.R
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.components.MediaContent
@@ -57,21 +58,21 @@ fun SharedTransitionScope.AlbumDetailScreen(
         uiState.screenContentType,
         transitionSpec = { Animation.combinedAnimation },
         label = "",
-        modifier = modifier
+        modifier = modifier.then(
+            Modifier.background(colorResource(R.color.night))
+        )
     ) { targetState ->
 
         when (targetState) {
             ScreenContentType.TIMELINE -> {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        AlbumDetailTopBar(
-                            title = uiState.albumName
-                        )
-                    }
-                ) { paddingValues ->
+
+                Column {
+
+                    AlbumDetailTopBar(
+                        title = uiState.albumName
+                    )
+
                     TimelineContent(
-                        modifier = Modifier.padding(paddingValues),
                         onImageClicked = { index, media ->
                             uiAction.invoke(
                                 AlbumDetailScreenUiAction.OnImageClicked(
@@ -88,7 +89,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
                             )
                         },
                         onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
-                        animatedVisibilityScope = this,
+                        animatedVisibilityScope = this@AnimatedContent,
                         lazyPagingUiModel = lazyPagingUiModel,
                         lazyPagingItems = lazyPagingItems,
                         lazyGridState = lazyGridState,
