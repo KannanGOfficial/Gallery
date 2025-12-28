@@ -2,6 +2,7 @@ package com.kannan.gallery.data.contentResolver.dataSource
 
 import com.kannan.gallery.data.contentResolver.models.AlbumCR
 import com.kannan.gallery.data.contentResolver.models.MediaCR
+import com.kannan.gallery.domain.model.Media
 
 interface ContentResolverDataSource {
 
@@ -14,4 +15,9 @@ interface ContentResolverDataSource {
         pageNumber: Int,
         pageSize: Int
     ): List<MediaCR>
+
+    suspend fun copyMedia(
+        from: Media,
+        path: String
+    ): Boolean
 }

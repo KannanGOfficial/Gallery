@@ -12,4 +12,6 @@ interface GalleryRepository {
     suspend fun getAllAlbum(): List<Album>
 
     fun getMediaByAlbumName(albumId: Long): Flow<PagingData<Media>>
+
+    suspend fun copyMedia(fromPath: Media, toPath: String): Boolean
 }

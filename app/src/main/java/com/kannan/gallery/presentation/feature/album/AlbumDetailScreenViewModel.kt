@@ -9,6 +9,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.kannan.gallery.domain.GalleryRepository
+import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
@@ -53,6 +54,14 @@ class AlbumDetailScreenViewModel @Inject constructor(
         observeAndUpdateMediaListUiModel()
         observeAndUpdateMediaList(albumDetailScreen.albumId)
         observeAndUpdateIsInMediaSelectionMode()
+        getAlbumList()
+    }
+
+    private fun getAlbumList() {
+        viewModelScope.launch {
+            val albumList = repository.getAllAlbum()
+            updateAlbumList(albumList)
+        }
     }
 
     private fun observeAndUpdateMediaListUiModel() {
@@ -84,7 +93,9 @@ class AlbumDetailScreenViewModel @Inject constructor(
     fun onUiAction(action: AlbumDetailScreenUiAction) {
         when (action) {
             AlbumDetailScreenUiAction.OnTimelineContentBackPressed -> {
-                if (uiState.value.isInMediaSelectionMode) {
+                if (uiState.value.shouldShowAlbumBottomSheet) {
+                    updateShouldShowAlbumBottomSheet(false)
+                } else if (uiState.value.isInMediaSelectionMode) {
                     updateAllIsSelectedState(false)
                 } else {
                     sendEvent(AlbumDetailScreenUiEvent.NavigateUp)
@@ -118,6 +129,18 @@ class AlbumDetailScreenViewModel @Inject constructor(
 
             is AlbumDetailScreenUiAction.OnSelectedItemCountChanged -> {
                 updateSelectedMediaCount(action.selectedMediaCount)
+            }
+
+            AlbumDetailScreenUiAction.OnAlbumBottomSheetDismissed -> {
+                updateShouldShowAlbumBottomSheet(false)
+            }
+
+            AlbumDetailScreenUiAction.OnSelectionSheetCloseClicked -> {
+                updateAllIsSelectedState(false)
+            }
+
+            AlbumDetailScreenUiAction.OnSelectionSheetCopyClicked -> {
+                updateShouldShowAlbumBottomSheet(true)
             }
         }
     }
@@ -182,6 +205,12 @@ class AlbumDetailScreenViewModel @Inject constructor(
     private fun updateMediaListUiModel(mediaListUiModel: PagingData<MediaUiModel>): Unit =
         _mediaListUiModelPagedStream.update { mediaListUiModel }
 
+    private fun updateAlbumList(albumList: List<Album>) =
+        _uiState.update { it.copy(albumList = albumList) }
+
+    private fun updateShouldShowAlbumBottomSheet(shouldShowAlbumBottomSheet: Boolean) =
+        _uiState.update { it.copy(shouldShowAlbumBottomSheet = shouldShowAlbumBottomSheet) }
+
     private fun sendEvent(event: AlbumDetailScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -192,7 +221,9 @@ data class AlbumDetailScreenUiState(
     val currentMediaPosition: Int = 0,
     val albumName: String = "",
     val isInMediaSelectionMode: Boolean = false,
-    val selectedMediaCount: Int = 0
+    val selectedMediaCount: Int = 0,
+    val albumList: List<Album> = emptyList(),
+    val shouldShowAlbumBottomSheet: Boolean = false
 )
 
 sealed interface AlbumDetailScreenUiAction {
@@ -201,6 +232,9 @@ sealed interface AlbumDetailScreenUiAction {
     data object OnTimelineContentBackPressed : AlbumDetailScreenUiAction
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : AlbumDetailScreenUiAction
     data class OnSelectedItemCountChanged(val selectedMediaCount: Int) : AlbumDetailScreenUiAction
+    data object OnAlbumBottomSheetDismissed : AlbumDetailScreenUiAction
+    data object OnSelectionSheetCloseClicked : AlbumDetailScreenUiAction
+    data object OnSelectionSheetCopyClicked : AlbumDetailScreenUiAction
 }
 
 sealed interface AlbumDetailScreenUiEvent {

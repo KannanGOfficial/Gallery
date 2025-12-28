@@ -82,7 +82,16 @@ fun SharedTransitionScope.MediaScreen(
                                 media = media
                             )
                         )
-                    }
+                    },
+                    onSelectionSheetCopyClicked = {
+                        uiAction(MediaScreenUiAction.OnSelectionSheetCopyClicked)
+                    },
+                    onSelectionSheetCloseClicked = {
+                        uiAction(MediaScreenUiAction.OnSelectionSheetCloseClicked)
+                    },
+                    albumList = uiState.albumList,
+                    shouldShowAlbumBottomSheet = uiState.shouldShowAlbumBottomSheet,
+                    onAlbumBottomSheetDismissed = { uiAction(MediaScreenUiAction.OnAlbumBottomSheetDismissed) }
                 )
             }
 

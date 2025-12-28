@@ -60,4 +60,11 @@ class GalleryRepositoryImpl @Inject constructor(
             it.map(MediaCR::toMedia)
         }
     }
+
+    override suspend fun copyMedia(fromPath: Media, toPath: String): Boolean {
+        return contentResolverDataSource.copyMedia(
+            from = fromPath,
+            path = toPath
+        )
+    }
 }

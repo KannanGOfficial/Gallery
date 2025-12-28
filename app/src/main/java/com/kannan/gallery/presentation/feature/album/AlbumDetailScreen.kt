@@ -88,13 +88,18 @@ fun SharedTransitionScope.AlbumDetailScreen(
                                 )
                             )
                         },
+                        onSelectionSheetCopyClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetCopyClicked) },
+                        onSelectionSheetCloseClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetCloseClicked) },
                         onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
                         animatedVisibilityScope = this@AnimatedContent,
                         lazyPagingUiModel = lazyPagingUiModel,
                         lazyPagingItems = lazyPagingItems,
                         lazyGridState = lazyGridState,
                         isInMediaSelectionMode = uiState.isInMediaSelectionMode,
-                        selectedItemCount = uiState.selectedMediaCount
+                        selectedItemCount = uiState.selectedMediaCount,
+                        albumList = uiState.albumList,
+                        shouldShowAlbumBottomSheet = uiState.shouldShowAlbumBottomSheet,
+                        onAlbumBottomSheetDismissed = { uiAction.invoke(AlbumDetailScreenUiAction.OnAlbumBottomSheetDismissed) }
                     )
                 }
             }

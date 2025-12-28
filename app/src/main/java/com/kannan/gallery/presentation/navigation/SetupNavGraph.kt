@@ -16,8 +16,7 @@ import androidx.navigation.compose.composable
 import com.kannan.gallery.R
 import com.kannan.gallery.presentation.feature.album.AlbumDetailScreen
 import com.kannan.gallery.presentation.feature.album.AlbumDetailScreenViewModel
-import com.kannan.gallery.presentation.feature.album.AlbumScreen
-import com.kannan.gallery.presentation.feature.album.AlbumScreenViewModel
+import com.kannan.gallery.presentation.feature.album.AlbumScreenRoot
 import com.kannan.gallery.presentation.feature.media.MediaScreen
 import com.kannan.gallery.presentation.feature.media.MediaScreenViewModel
 import com.kannan.gallery.presentation.feature.settings.SettingsScreen
@@ -73,14 +72,7 @@ fun SetupNavGraph(
             }
 
             composable<NavigationScreen.AlbumScreen> {
-                val viewModel = hiltViewModel<AlbumScreenViewModel>()
-                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                AlbumScreen(
-                    uiState = uiState,
-                    uiEvent = viewModel.uiEvent,
-                    uiAction = viewModel::onUiAction,
-                    navigateToCallBack = navHostController::navigateTo
-                )
+                AlbumScreenRoot(navigateToCallBack = navHostController::navigateTo)
             }
 
 

@@ -99,7 +99,8 @@ private fun AlbumCardPreview() {
             album = Album(
                 id = 0,
                 name = "Camera",
-                coverImage = ""
+                coverImage = "",
+                relativePath = ""
             ),
             onAlbumClicked = {}
         )

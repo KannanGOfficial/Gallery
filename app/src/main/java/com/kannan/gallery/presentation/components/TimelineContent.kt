@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,13 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.domain.model.MediaUiModel
+import com.kannan.gallery.presentation.feature.album.components.AlbumScreen
 import com.kannan.gallery.presentation.feature.media.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
 import kotlinx.coroutines.flow.flowOf
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SharedTransitionScope.TimelineContent(
     modifier: Modifier = Modifier,
@@ -41,9 +45,14 @@ fun SharedTransitionScope.TimelineContent(
     onImageClicked: (Int, Media) -> Unit,
     onImageLongClicked: (Media) -> Unit,
     onBackPressed: () -> Unit,
+    onSelectionSheetCloseClicked: () -> Unit,
+    onSelectionSheetCopyClicked: () -> Unit,
     isInMediaSelectionMode: Boolean,
     selectedItemCount: Int,
-    animatedVisibilityScope: AnimatedVisibilityScope
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    albumList: List<Album>,
+    shouldShowAlbumBottomSheet: Boolean,
+    onAlbumBottomSheetDismissed: () -> Unit
 ) {
 
     BackHandler(onBack = onBackPressed)
@@ -118,11 +127,22 @@ fun SharedTransitionScope.TimelineContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter),
                 selectedItemCount = selectedItemCount,
-                onCopyButtonClick = {},
+                onCopyButtonClick = onSelectionSheetCopyClicked,
                 onMoveButtonClick = {},
-                onCloseButtonClick = {},
+                onCloseButtonClick = onSelectionSheetCloseClicked,
                 onShareButtonClick = {}
             )
+        }
+
+        if (shouldShowAlbumBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = onAlbumBottomSheetDismissed
+            ) {
+                AlbumScreen(
+                    albumList = albumList,
+                    onAlbumClicked = {}
+                )
+            }
         }
     }
 
@@ -130,7 +150,7 @@ fun SharedTransitionScope.TimelineContent(
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun TimelineContentPreview() {
     GalleryTheme {
@@ -145,7 +165,12 @@ private fun TimelineContentPreview() {
                     lazyPagingItems = flowOf(PagingData.empty<Media>()).collectAsLazyPagingItems(),
                     lazyGridState = rememberLazyGridState(),
                     isInMediaSelectionMode = false,
-                    selectedItemCount = 2
+                    selectedItemCount = 2,
+                    onSelectionSheetCloseClicked = {},
+                    onSelectionSheetCopyClicked = {},
+                    albumList = emptyList(),
+                    shouldShowAlbumBottomSheet = false,
+                    onAlbumBottomSheetDismissed = {}
                 )
             }
         }

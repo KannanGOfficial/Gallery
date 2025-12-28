@@ -23,5 +23,6 @@ data class AlbumCR(
 fun AlbumCR.toAlbum() = Album(
     id = id,
     name = name,
-    coverImage = coverImage
+    coverImage = coverImage,
+    relativePath = relativePath
 )
