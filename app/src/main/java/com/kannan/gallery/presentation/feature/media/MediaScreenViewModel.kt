@@ -167,8 +167,29 @@ class MediaScreenViewModel @Inject constructor(
             MediaScreenUiAction.OnAlbumBottomSheetDismissed -> {
                 updateShouldShowAlbumBottomSheet(false)
             }
+
+            is MediaScreenUiAction.OnAlbumPathSelected -> {
+                copyMediaToPath(action.path)
+            }
+
+            is MediaScreenUiAction.OnSelectedMediaListChanged -> {
+                updateSelectedMediaList(action.selectedMediaList)
+            }
         }
     }
+
+    private fun copyMediaToPath(path: String) = viewModelScope.launch {
+        val selectedMedia = uiState.value.selectedMediaList
+        selectedMedia.forEach { media ->
+            repository.copyMedia(
+                from = media,
+                toPath = path
+            )
+        }
+        updateShouldShowAlbumBottomSheet(false)
+        updateAllIsSelectedState(false)
+    }
+
 
     private fun updateIsSelectedState(id: Long, isSelected: Boolean) {
         val newData = mediaListPagedStream.value.map {
@@ -245,6 +266,9 @@ class MediaScreenViewModel @Inject constructor(
             )
         }
 
+    private fun updateSelectedMediaList(selectedMediaList: List<Media>) =
+        _uiState.update { it.copy(selectedMediaList = selectedMediaList) }
+
     private fun updateAlbumList(albumList: List<Album>) =
         _uiState.update { it.copy(albumList = albumList) }
 
@@ -261,7 +285,8 @@ data class MediaScreenUiState(
     val shouldShowBottomBar: Boolean = true,
     val shouldShowAlbumBottomSheet: Boolean = false,
     val mediaList: Set<Media> = emptySet(),
-    val albumList: List<Album> = emptyList()
+    val albumList: List<Album> = emptyList(),
+    val selectedMediaList: List<Media> = emptyList()
 )
 
 sealed interface MediaScreenUiAction {
@@ -274,6 +299,8 @@ sealed interface MediaScreenUiAction {
     data object OnSelectionSheetCloseClicked : MediaScreenUiAction
     data object OnSelectionSheetCopyClicked : MediaScreenUiAction
     data object OnAlbumBottomSheetDismissed : MediaScreenUiAction
+    data class OnAlbumPathSelected(val path: String) : MediaScreenUiAction
+    data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) : MediaScreenUiAction
 }
 
 sealed interface MediaScreenUiEvent {

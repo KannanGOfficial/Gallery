@@ -52,7 +52,8 @@ fun SharedTransitionScope.TimelineContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
     albumList: List<Album>,
     shouldShowAlbumBottomSheet: Boolean,
-    onAlbumBottomSheetDismissed: () -> Unit
+    onAlbumBottomSheetDismissed: () -> Unit,
+    onAlbumPathSelected: (String) -> Unit
 ) {
 
     BackHandler(onBack = onBackPressed)
@@ -140,7 +141,9 @@ fun SharedTransitionScope.TimelineContent(
             ) {
                 AlbumScreen(
                     albumList = albumList,
-                    onAlbumClicked = {}
+                    onAlbumClicked = {
+                        onAlbumPathSelected(it.relativePath)
+                    }
                 )
             }
         }
@@ -170,7 +173,8 @@ private fun TimelineContentPreview() {
                     onSelectionSheetCopyClicked = {},
                     albumList = emptyList(),
                     shouldShowAlbumBottomSheet = false,
-                    onAlbumBottomSheetDismissed = {}
+                    onAlbumBottomSheetDismissed = {},
+                    onAlbumPathSelected = {}
                 )
             }
         }

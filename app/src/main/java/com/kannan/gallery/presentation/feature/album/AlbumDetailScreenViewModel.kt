@@ -142,7 +142,26 @@ class AlbumDetailScreenViewModel @Inject constructor(
             AlbumDetailScreenUiAction.OnSelectionSheetCopyClicked -> {
                 updateShouldShowAlbumBottomSheet(true)
             }
+            is AlbumDetailScreenUiAction.OnAlbumPathSelected -> {
+                copyMediaToPath(action.path)
+            }
+
+            is AlbumDetailScreenUiAction.OnSelectedMediaListChanged -> {
+                updateSelectedMediaList(action.selectedMediaList)
+            }
         }
+    }
+
+    private fun copyMediaToPath(path: String) = viewModelScope.launch {
+        val selectedMedia = uiState.value.selectedMediaList
+        selectedMedia.forEach { media ->
+            repository.copyMedia(
+                from = media,
+                toPath = path
+            )
+        }
+        updateShouldShowAlbumBottomSheet(false)
+        updateAllIsSelectedState(false)
     }
 
     private fun updateIsSelectedState(id: Long, isSelected: Boolean) {
@@ -211,6 +230,9 @@ class AlbumDetailScreenViewModel @Inject constructor(
     private fun updateShouldShowAlbumBottomSheet(shouldShowAlbumBottomSheet: Boolean) =
         _uiState.update { it.copy(shouldShowAlbumBottomSheet = shouldShowAlbumBottomSheet) }
 
+    private fun updateSelectedMediaList(selectedMediaList: List<Media>) =
+        _uiState.update { it.copy(selectedMediaList = selectedMediaList) }
+
     private fun sendEvent(event: AlbumDetailScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -223,7 +245,8 @@ data class AlbumDetailScreenUiState(
     val isInMediaSelectionMode: Boolean = false,
     val selectedMediaCount: Int = 0,
     val albumList: List<Album> = emptyList(),
-    val shouldShowAlbumBottomSheet: Boolean = false
+    val shouldShowAlbumBottomSheet: Boolean = false,
+    val selectedMediaList: List<Media> = emptyList()
 )
 
 sealed interface AlbumDetailScreenUiAction {
@@ -235,6 +258,9 @@ sealed interface AlbumDetailScreenUiAction {
     data object OnAlbumBottomSheetDismissed : AlbumDetailScreenUiAction
     data object OnSelectionSheetCloseClicked : AlbumDetailScreenUiAction
     data object OnSelectionSheetCopyClicked : AlbumDetailScreenUiAction
+    data class OnAlbumPathSelected(val path: String) : AlbumDetailScreenUiAction
+    data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) :
+        AlbumDetailScreenUiAction
 }
 
 sealed interface AlbumDetailScreenUiEvent {
