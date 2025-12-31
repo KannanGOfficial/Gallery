@@ -79,7 +79,8 @@ val albumList1 = (0..10).map { index ->
     Album(
         id = index.toLong(),
         name = "Camera",
-        coverImage = ""
+        coverImage = "",
+        relativePath = ""
     )
 }
 

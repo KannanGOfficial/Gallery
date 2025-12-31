@@ -1,6 +1,7 @@
 package com.kannan.gallery.data.contentResolver
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
@@ -18,6 +19,8 @@ class GetAllMedia @Inject constructor(@ApplicationContext val context: Context) 
 
     private val projection = arrayOf(
         MediaStore.MediaColumns._ID,
+        MediaStore.MediaColumns.DISPLAY_NAME,
+        MediaStore.MediaColumns.MIME_TYPE,
         MediaStore.MediaColumns.DATA,
         MediaStore.MediaColumns.DATE_MODIFIED
     )
@@ -64,16 +67,29 @@ class GetAllMedia @Inject constructor(@ApplicationContext val context: Context) 
                     val idX = getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                     val dataX = getColumnIndex(MediaStore.MediaColumns.DATA)
                     val dateModifiedX = getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED)
+                    val displayNameX = getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                    val mimeTypeX = getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)
+
 
                     while (moveToNext()) {
                         val id = getLong(idX)
                         val data = getString(dataX)
                         val dateModified = getLong(dateModifiedX)
+                        val displayName = getString(displayNameX)
+                        val mimeType = getString(mimeTypeX)
+                        val contentUri = if (mimeType.contains("image"))
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        else
+                            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                        val uri = ContentUris.withAppendedId(contentUri, id)
 
                         val mediaCR = MediaCR(
                             id = id,
                             uri = data,
-                            dateModified = dateModified.getDate()
+                            URI = uri,
+                            dateModified = dateModified.getDate(),
+                            displayName = displayName,
+                            mimeType = mimeType
                         )
                         imageList.add(mediaCR)
                     }

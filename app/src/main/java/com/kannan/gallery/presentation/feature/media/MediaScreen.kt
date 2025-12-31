@@ -49,6 +49,9 @@ fun SharedTransitionScope.MediaScreen(
 
     LaunchedEffect(lazyPagingItems.itemSnapshotList) {
         val selectedMediaCount = lazyPagingItems.itemSnapshotList.count { it?.isSelected == true }
+        val selectedMedia =
+            lazyPagingItems.itemSnapshotList.filterNotNull().filter { it.isSelected }
+        uiAction(MediaScreenUiAction.OnSelectedMediaListChanged(selectedMedia))
         uiAction(MediaScreenUiAction.OnSelectedItemCountChanged(selectedMediaCount))
         /*uiAction(
             MediaScreenUiAction.OnNewMediaListPaged(
@@ -82,7 +85,18 @@ fun SharedTransitionScope.MediaScreen(
                                 media = media
                             )
                         )
-                    }
+                    },
+                    onSelectionSheetCopyClicked = {
+                        uiAction(MediaScreenUiAction.OnSelectionSheetCopyClicked)
+                    },
+                    onSelectionSheetCloseClicked = {
+                        uiAction(MediaScreenUiAction.OnSelectionSheetCloseClicked)
+                    },
+                    onSelectionSheetMoveClicked = { uiAction(MediaScreenUiAction.OnSelectionSheetMoveClicked) },
+                    albumList = uiState.albumList,
+                    shouldShowAlbumBottomSheet = uiState.shouldShowAlbumBottomSheet,
+                    onAlbumBottomSheetDismissed = { uiAction(MediaScreenUiAction.OnAlbumBottomSheetDismissed) },
+                    onAlbumPathSelected = { uiAction(MediaScreenUiAction.OnAlbumPathSelected(it)) }
                 )
             }
 

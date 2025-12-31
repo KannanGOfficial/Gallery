@@ -2,6 +2,7 @@ package com.kannan.gallery.presentation.feature.setup
 
 import android.app.Activity
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
@@ -56,6 +57,8 @@ fun SetupScreen(
         uiState = uiState,
         uiAction = uiAction
     )
+
+    LazyRow { }
 
     DisposableEffect(lifecycleOwner) {
         val observer = object : DefaultLifecycleObserver {

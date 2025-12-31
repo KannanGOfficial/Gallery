@@ -7,6 +7,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.kannan.gallery.domain.GalleryRepository
+import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.utils.ext.insertLineSeparator
@@ -47,7 +48,15 @@ class MediaScreenViewModel @Inject constructor(
         observeAndUpdateMediaList()
         observeAndUpdateIsInMediaSelectionMode()
         observeAndUpdateShouldShowBottomBar()
+        getAlbumList()
 //        observeAndUpdateSelectionMediaCount()
+    }
+
+    private fun getAlbumList() {
+        viewModelScope.launch {
+            val albumList = repository.getAllAlbum()
+            updateAlbumList(albumList)
+        }
     }
 
     private fun observeAndUpdateMediaListUiModel() {
@@ -105,7 +114,9 @@ class MediaScreenViewModel @Inject constructor(
     fun onUiAction(action: MediaScreenUiAction) {
         when (action) {
             MediaScreenUiAction.OnTimelineContentBackPressed -> {
-                if (uiState.value.isInMediaSelectionMode) {
+                if (uiState.value.shouldShowAlbumBottomSheet) {
+                    updateShouldShowAlbumBottomSheet(false)
+                } else if (uiState.value.isInMediaSelectionMode) {
                     updateAllIsSelectedState(false)
                 } else {
                     sendEvent(MediaScreenUiEvent.NavigateUp)
@@ -144,8 +155,69 @@ class MediaScreenViewModel @Inject constructor(
             is MediaScreenUiAction.OnNewMediaListPaged -> {
                 updateMediaList(action.mediaList)
             }
+
+            MediaScreenUiAction.OnSelectionSheetCloseClicked -> {
+                updateAllIsSelectedState(false)
+            }
+
+            MediaScreenUiAction.OnSelectionSheetCopyClicked -> {
+                updateMediaActionType(MediaActionType.COPY)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
+            MediaScreenUiAction.OnSelectionSheetMoveClicked -> {
+                updateMediaActionType(MediaActionType.MOVE)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
+            MediaScreenUiAction.OnAlbumBottomSheetDismissed -> {
+                updateShouldShowAlbumBottomSheet(false)
+            }
+
+            is MediaScreenUiAction.OnAlbumPathSelected -> {
+                when (uiState.value.mediaActionType) {
+                    MediaActionType.COPY -> {
+                        copyMediaToPath(action.path)
+                    }
+
+                    MediaActionType.MOVE -> {
+                        moveMedia(action.path)
+                    }
+
+                    null -> Unit
+                }
+            }
+
+            is MediaScreenUiAction.OnSelectedMediaListChanged -> {
+                updateSelectedMediaList(action.selectedMediaList)
+            }
         }
     }
+
+    private fun copyMediaToPath(path: String) = viewModelScope.launch {
+        val selectedMedia = uiState.value.selectedMediaList
+        selectedMedia.forEach { media ->
+            repository.copyMedia(
+                from = media,
+                toPath = path
+            )
+        }
+        updateShouldShowAlbumBottomSheet(false)
+        updateAllIsSelectedState(false)
+    }
+
+    private fun moveMedia(path: String) = viewModelScope.launch {
+        val selectedMediaList = uiState.value.selectedMediaList
+        selectedMediaList.forEach { media ->
+            repository.moveMedia(
+                media = media,
+                toPath = path
+            )
+        }
+        updateShouldShowAlbumBottomSheet(false)
+        updateAllIsSelectedState(false)
+    }
+
 
     private fun updateIsSelectedState(id: Long, isSelected: Boolean) {
         val newData = mediaListPagedStream.value.map {
@@ -215,6 +287,22 @@ class MediaScreenViewModel @Inject constructor(
     private fun updateMediaListUiModel(mediaListUiModel: PagingData<MediaUiModel>): Unit =
         _mediaListUiModelPagedStream.update { mediaListUiModel }
 
+    private fun updateShouldShowAlbumBottomSheet(shouldShowAlbumBottomSheet: Boolean): Unit =
+        _uiState.update {
+            it.copy(
+                shouldShowAlbumBottomSheet = shouldShowAlbumBottomSheet
+            )
+        }
+
+    private fun updateSelectedMediaList(selectedMediaList: List<Media>) =
+        _uiState.update { it.copy(selectedMediaList = selectedMediaList) }
+
+    private fun updateAlbumList(albumList: List<Album>) =
+        _uiState.update { it.copy(albumList = albumList) }
+
+    private fun updateMediaActionType(mediaActionType: MediaActionType) =
+        _uiState.update { it.copy(mediaActionType = mediaActionType) }
+
     private fun sendEvent(event: MediaScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -226,7 +314,11 @@ data class MediaScreenUiState(
     val isInMediaSelectionMode: Boolean = false,
     val selectedMediaCount: Int = 0,
     val shouldShowBottomBar: Boolean = true,
-    val mediaList: Set<Media> = emptySet()
+    val shouldShowAlbumBottomSheet: Boolean = false,
+    val mediaList: Set<Media> = emptySet(),
+    val albumList: List<Album> = emptyList(),
+    val selectedMediaList: List<Media> = emptyList(),
+    val mediaActionType: MediaActionType? = null
 )
 
 sealed interface MediaScreenUiAction {
@@ -236,6 +328,12 @@ sealed interface MediaScreenUiAction {
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : MediaScreenUiAction
     data class OnSelectedItemCountChanged(val selectedMediaCount: Int) : MediaScreenUiAction
     data class OnNewMediaListPaged(val mediaList: Set<Media>) : MediaScreenUiAction
+    data object OnSelectionSheetCloseClicked : MediaScreenUiAction
+    data object OnSelectionSheetCopyClicked : MediaScreenUiAction
+    data object OnAlbumBottomSheetDismissed : MediaScreenUiAction
+    data object OnSelectionSheetMoveClicked : MediaScreenUiAction
+    data class OnAlbumPathSelected(val path: String) : MediaScreenUiAction
+    data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) : MediaScreenUiAction
 }
 
 sealed interface MediaScreenUiEvent {
@@ -245,4 +343,9 @@ sealed interface MediaScreenUiEvent {
 enum class ScreenContentType {
     TIMELINE,
     MEDIA
+}
+
+enum class MediaActionType {
+    COPY,
+    MOVE
 }
