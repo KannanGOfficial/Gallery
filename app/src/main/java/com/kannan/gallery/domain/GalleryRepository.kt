@@ -14,4 +14,6 @@ interface GalleryRepository {
     fun getMediaByAlbumName(albumId: Long): Flow<PagingData<Media>>
 
     suspend fun copyMedia(from: Media, toPath: String): Boolean
+
+    suspend fun moveMedia(media: Media, toPath: String): Boolean
 }

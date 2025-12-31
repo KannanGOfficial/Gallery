@@ -109,7 +109,8 @@ fun SharedTransitionScope.AlbumDetailScreen(
                                     it
                                 )
                             )
-                        }
+                        },
+                        onSelectionSheetMoveClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetMoveClicked) }
                     )
                 }
             }

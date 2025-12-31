@@ -20,4 +20,9 @@ interface ContentResolverDataSource {
         from: Media,
         path: String
     ): Boolean
+
+    suspend fun moveMedia(
+        media: Media,
+        toPath: String
+    ): Boolean
 }

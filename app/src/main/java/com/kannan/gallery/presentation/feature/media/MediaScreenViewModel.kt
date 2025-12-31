@@ -161,6 +161,12 @@ class MediaScreenViewModel @Inject constructor(
             }
 
             MediaScreenUiAction.OnSelectionSheetCopyClicked -> {
+                updateMediaActionType(MediaActionType.COPY)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
+            MediaScreenUiAction.OnSelectionSheetMoveClicked -> {
+                updateMediaActionType(MediaActionType.MOVE)
                 updateShouldShowAlbumBottomSheet(true)
             }
 
@@ -169,7 +175,17 @@ class MediaScreenViewModel @Inject constructor(
             }
 
             is MediaScreenUiAction.OnAlbumPathSelected -> {
-                copyMediaToPath(action.path)
+                when (uiState.value.mediaActionType) {
+                    MediaActionType.COPY -> {
+                        copyMediaToPath(action.path)
+                    }
+
+                    MediaActionType.MOVE -> {
+                        moveMedia(action.path)
+                    }
+
+                    null -> Unit
+                }
             }
 
             is MediaScreenUiAction.OnSelectedMediaListChanged -> {
@@ -183,6 +199,18 @@ class MediaScreenViewModel @Inject constructor(
         selectedMedia.forEach { media ->
             repository.copyMedia(
                 from = media,
+                toPath = path
+            )
+        }
+        updateShouldShowAlbumBottomSheet(false)
+        updateAllIsSelectedState(false)
+    }
+
+    private fun moveMedia(path: String) = viewModelScope.launch {
+        val selectedMediaList = uiState.value.selectedMediaList
+        selectedMediaList.forEach { media ->
+            repository.moveMedia(
+                media = media,
                 toPath = path
             )
         }
@@ -272,6 +300,9 @@ class MediaScreenViewModel @Inject constructor(
     private fun updateAlbumList(albumList: List<Album>) =
         _uiState.update { it.copy(albumList = albumList) }
 
+    private fun updateMediaActionType(mediaActionType: MediaActionType) =
+        _uiState.update { it.copy(mediaActionType = mediaActionType) }
+
     private fun sendEvent(event: MediaScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -286,7 +317,8 @@ data class MediaScreenUiState(
     val shouldShowAlbumBottomSheet: Boolean = false,
     val mediaList: Set<Media> = emptySet(),
     val albumList: List<Album> = emptyList(),
-    val selectedMediaList: List<Media> = emptyList()
+    val selectedMediaList: List<Media> = emptyList(),
+    val mediaActionType: MediaActionType? = null
 )
 
 sealed interface MediaScreenUiAction {
@@ -299,6 +331,7 @@ sealed interface MediaScreenUiAction {
     data object OnSelectionSheetCloseClicked : MediaScreenUiAction
     data object OnSelectionSheetCopyClicked : MediaScreenUiAction
     data object OnAlbumBottomSheetDismissed : MediaScreenUiAction
+    data object OnSelectionSheetMoveClicked : MediaScreenUiAction
     data class OnAlbumPathSelected(val path: String) : MediaScreenUiAction
     data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) : MediaScreenUiAction
 }
@@ -310,4 +343,9 @@ sealed interface MediaScreenUiEvent {
 enum class ScreenContentType {
     TIMELINE,
     MEDIA
+}
+
+enum class MediaActionType {
+    COPY,
+    MOVE
 }

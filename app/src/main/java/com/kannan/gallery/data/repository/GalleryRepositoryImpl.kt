@@ -67,4 +67,8 @@ class GalleryRepositoryImpl @Inject constructor(
             path = toPath
         )
     }
+
+    override suspend fun moveMedia(media: Media, toPath: String): Boolean =
+        contentResolverDataSource.moveMedia(media = media, toPath = toPath)
+
 }

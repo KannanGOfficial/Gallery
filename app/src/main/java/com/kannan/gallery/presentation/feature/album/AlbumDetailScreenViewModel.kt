@@ -12,6 +12,7 @@ import com.kannan.gallery.domain.GalleryRepository
 import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.domain.model.MediaUiModel
+import com.kannan.gallery.presentation.feature.media.MediaActionType
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.presentation.navigation.NavigationScreen
 import com.kannan.gallery.utils.ext.insertLineSeparator
@@ -140,15 +141,33 @@ class AlbumDetailScreenViewModel @Inject constructor(
             }
 
             AlbumDetailScreenUiAction.OnSelectionSheetCopyClicked -> {
+                updateMediaActionType(MediaActionType.COPY)
                 updateShouldShowAlbumBottomSheet(true)
             }
+
+            AlbumDetailScreenUiAction.OnSelectionSheetMoveClicked -> {
+                updateMediaActionType(MediaActionType.MOVE)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
             is AlbumDetailScreenUiAction.OnAlbumPathSelected -> {
-                copyMediaToPath(action.path)
+                when (uiState.value.mediaActionType) {
+                    MediaActionType.COPY -> {
+                        copyMediaToPath(action.path)
+                    }
+
+                    MediaActionType.MOVE -> {
+                        moveMedia(action.path)
+                    }
+
+                    null -> Unit
+                }
             }
 
             is AlbumDetailScreenUiAction.OnSelectedMediaListChanged -> {
                 updateSelectedMediaList(action.selectedMediaList)
             }
+
         }
     }
 
@@ -157,6 +176,18 @@ class AlbumDetailScreenViewModel @Inject constructor(
         selectedMedia.forEach { media ->
             repository.copyMedia(
                 from = media,
+                toPath = path
+            )
+        }
+        updateShouldShowAlbumBottomSheet(false)
+        updateAllIsSelectedState(false)
+    }
+
+    private fun moveMedia(path: String) = viewModelScope.launch {
+        val selectedMediaList = uiState.value.selectedMediaList
+        selectedMediaList.forEach { media ->
+            repository.moveMedia(
+                media = media,
                 toPath = path
             )
         }
@@ -233,6 +264,9 @@ class AlbumDetailScreenViewModel @Inject constructor(
     private fun updateSelectedMediaList(selectedMediaList: List<Media>) =
         _uiState.update { it.copy(selectedMediaList = selectedMediaList) }
 
+    private fun updateMediaActionType(mediaActionType: MediaActionType) =
+        _uiState.update { it.copy(mediaActionType = mediaActionType) }
+
     private fun sendEvent(event: AlbumDetailScreenUiEvent) = viewModelScope.launch {
         _uiEvent.send(event)
     }
@@ -246,7 +280,8 @@ data class AlbumDetailScreenUiState(
     val selectedMediaCount: Int = 0,
     val albumList: List<Album> = emptyList(),
     val shouldShowAlbumBottomSheet: Boolean = false,
-    val selectedMediaList: List<Media> = emptyList()
+    val selectedMediaList: List<Media> = emptyList(),
+    val mediaActionType: MediaActionType? = null
 )
 
 sealed interface AlbumDetailScreenUiAction {
@@ -259,6 +294,7 @@ sealed interface AlbumDetailScreenUiAction {
     data object OnSelectionSheetCloseClicked : AlbumDetailScreenUiAction
     data object OnSelectionSheetCopyClicked : AlbumDetailScreenUiAction
     data class OnAlbumPathSelected(val path: String) : AlbumDetailScreenUiAction
+    data object OnSelectionSheetMoveClicked : AlbumDetailScreenUiAction
     data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) :
         AlbumDetailScreenUiAction
 }

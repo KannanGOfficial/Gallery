@@ -47,6 +47,7 @@ fun SharedTransitionScope.TimelineContent(
     onBackPressed: () -> Unit,
     onSelectionSheetCloseClicked: () -> Unit,
     onSelectionSheetCopyClicked: () -> Unit,
+    onSelectionSheetMoveClicked: () -> Unit,
     isInMediaSelectionMode: Boolean,
     selectedItemCount: Int,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -129,7 +130,7 @@ fun SharedTransitionScope.TimelineContent(
                     .align(Alignment.BottomCenter),
                 selectedItemCount = selectedItemCount,
                 onCopyButtonClick = onSelectionSheetCopyClicked,
-                onMoveButtonClick = {},
+                onMoveButtonClick = onSelectionSheetMoveClicked,
                 onCloseButtonClick = onSelectionSheetCloseClicked,
                 onShareButtonClick = {}
             )
@@ -171,6 +172,7 @@ private fun TimelineContentPreview() {
                     selectedItemCount = 2,
                     onSelectionSheetCloseClicked = {},
                     onSelectionSheetCopyClicked = {},
+                    onSelectionSheetMoveClicked = {},
                     albumList = emptyList(),
                     shouldShowAlbumBottomSheet = false,
                     onAlbumBottomSheetDismissed = {},
