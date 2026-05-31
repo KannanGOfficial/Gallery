@@ -56,10 +56,11 @@ fun SharedTransitionScope.MediaContent(
             Thumbnail(
                 data = data.uri,
                 contentDescription = data.uri,
+                crossFade = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(key = "image/ ${data.id}"),
+                        sharedContentState = rememberSharedContentState(key = "image/ ${data.uniqueId}"),
                         animatedVisibilityScope = animatedVisibilityScope,
                         resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
                     )

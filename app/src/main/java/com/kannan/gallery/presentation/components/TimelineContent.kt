@@ -93,7 +93,7 @@ fun SharedTransitionScope.TimelineContent(
                                 modifier = Modifier
                                     .size(130.dp, 150.dp)
                                     .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(key = "image/ ${data.item.id}"),
+                                        sharedContentState = rememberSharedContentState(key = "image/ ${data.item.uniqueId}"),
                                         animatedVisibilityScope = animatedVisibilityScope,
                                         resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
                                     ),

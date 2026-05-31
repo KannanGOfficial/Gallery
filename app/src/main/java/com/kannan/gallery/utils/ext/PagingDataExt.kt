@@ -25,7 +25,7 @@ fun insertLineSeparator(
     return if (beforeDateStr != afterDateStr)
         MediaUiModel.Header(
             title = afterDateStr,
-            id = "separator_${before?.item?.id}_${after.item.id}"
+            id = "separator_${before?.item?.uniqueId}_${after.item.uniqueId}"
         )
     else null
 }
