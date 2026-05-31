@@ -1,5 +1,7 @@
 package com.kannan.gallery.data.repository
 
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -71,4 +73,31 @@ class GalleryRepositoryImpl @Inject constructor(
     override suspend fun moveMedia(media: Media, toPath: String): Boolean =
         contentResolverDataSource.moveMedia(media = media, toPath = toPath)
 
+    override suspend fun trashMedia(
+        mediaList: List<Media>,
+        trash: Boolean,
+        result: ActivityResultLauncher<IntentSenderRequest>
+    ) = contentResolverDataSource.trashMedia(
+        mediaList = mediaList,
+        trash = trash,
+        result = result
+    )
+
+    override suspend fun deleteMedia(
+        mediaList: List<Media>,
+        result: ActivityResultLauncher<IntentSenderRequest>
+    ) = contentResolverDataSource.deleteMedia(
+        mediaList = mediaList,
+        result = result
+    )
+
+    override suspend fun toggleFavorite(
+        mediaList: List<Media>,
+        favorite: Boolean,
+        result: ActivityResultLauncher<IntentSenderRequest>
+    ) = contentResolverDataSource.toggleFavorite(
+        mediaList = mediaList,
+        favorite = favorite,
+        result = result
+    )
 }

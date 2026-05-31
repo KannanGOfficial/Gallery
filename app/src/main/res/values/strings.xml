@@ -6,4 +6,6 @@
     <string name="move">Move</string>
     <string name="copy">Copy</string>
     <string name="share">Share</string>
+    <string name="trash">Trash</string>
+    <string name="favourite">Favourite</string>
 </resources>

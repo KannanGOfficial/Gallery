@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.DriveFileMove
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.CopyAll
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,7 +41,8 @@ fun SelectionSheet(
     onCloseButtonClick: () -> Unit,
     onShareButtonClick: () -> Unit,
     onCopyButtonClick: () -> Unit,
-    onMoveButtonClick: () -> Unit
+    onMoveButtonClick: () -> Unit,
+    onTrashButtonClick: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -110,6 +112,12 @@ fun SelectionSheet(
                 title = stringResource(R.string.move),
                 onClick = onMoveButtonClick
             )
+
+            SelectionColumn(
+                imageVector = Icons.Outlined.DeleteOutline,
+                title = stringResource(R.string.trash),
+                onClick = onTrashButtonClick
+            )
         }
     }
 }
@@ -122,6 +130,7 @@ private fun SelectionSheetPreview() {
         onCloseButtonClick = {},
         onShareButtonClick = {},
         onCopyButtonClick = {},
-        onMoveButtonClick = {}
+        onMoveButtonClick = {},
+        onTrashButtonClick = {},
     )
 }

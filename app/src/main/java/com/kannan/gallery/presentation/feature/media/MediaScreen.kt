@@ -92,6 +92,9 @@ fun SharedTransitionScope.MediaScreen(
                     onSelectionSheetCloseClicked = {
                         uiAction(MediaScreenUiAction.OnSelectionSheetCloseClicked)
                     },
+                    onSelectionSheetTrashClicked = {
+                        uiAction(MediaScreenUiAction.OnSelectionSheetTrashClicked(it))
+                    },
                     onSelectionSheetMoveClicked = { uiAction(MediaScreenUiAction.OnSelectionSheetMoveClicked) },
                     albumList = uiState.albumList,
                     shouldShowAlbumBottomSheet = uiState.shouldShowAlbumBottomSheet,

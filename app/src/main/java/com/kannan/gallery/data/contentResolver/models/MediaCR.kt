@@ -20,3 +20,12 @@ fun MediaCR.toMedia() = Media(
     mimeType = mimeType,
     URI = URI
 )
+
+fun Media.toMediaCR() = MediaCR(
+    id = id,
+    uri = uri,
+    dateModified = dateModified,
+    displayName = displayName,
+    mimeType = mimeType,
+    URI = URI
+)

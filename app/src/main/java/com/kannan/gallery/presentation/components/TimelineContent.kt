@@ -1,6 +1,8 @@
 package com.kannan.gallery.presentation.components
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -33,6 +35,7 @@ import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.feature.album.components.AlbumScreen
 import com.kannan.gallery.presentation.feature.media.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
+import com.kannan.gallery.utils.ext.rememberActivityResult
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
@@ -48,6 +51,7 @@ fun SharedTransitionScope.TimelineContent(
     onSelectionSheetCloseClicked: () -> Unit,
     onSelectionSheetCopyClicked: () -> Unit,
     onSelectionSheetMoveClicked: () -> Unit,
+    onSelectionSheetTrashClicked: (result: ActivityResultLauncher<IntentSenderRequest>) -> Unit,
     isInMediaSelectionMode: Boolean,
     selectedItemCount: Int,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -56,6 +60,7 @@ fun SharedTransitionScope.TimelineContent(
     onAlbumBottomSheetDismissed: () -> Unit,
     onAlbumPathSelected: (String) -> Unit
 ) {
+    val result = rememberActivityResult()
 
     BackHandler(onBack = onBackPressed)
 
@@ -132,7 +137,8 @@ fun SharedTransitionScope.TimelineContent(
                 onCopyButtonClick = onSelectionSheetCopyClicked,
                 onMoveButtonClick = onSelectionSheetMoveClicked,
                 onCloseButtonClick = onSelectionSheetCloseClicked,
-                onShareButtonClick = {}
+                onShareButtonClick = {},
+                onTrashButtonClick = { onSelectionSheetTrashClicked(result) },
             )
         }
 
@@ -173,6 +179,7 @@ private fun TimelineContentPreview() {
                     onSelectionSheetCloseClicked = {},
                     onSelectionSheetCopyClicked = {},
                     onSelectionSheetMoveClicked = {},
+                    onSelectionSheetTrashClicked = {},
                     albumList = emptyList(),
                     shouldShowAlbumBottomSheet = false,
                     onAlbumBottomSheetDismissed = {},

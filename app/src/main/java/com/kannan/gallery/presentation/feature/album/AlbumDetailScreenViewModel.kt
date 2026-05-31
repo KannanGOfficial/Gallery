@@ -1,6 +1,8 @@
 package com.kannan.gallery.presentation.feature.album
 
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -176,8 +178,24 @@ class AlbumDetailScreenViewModel @Inject constructor(
                 updateSelectedMediaList(action.selectedMediaList)
             }
 
+            is AlbumDetailScreenUiAction.OnSelectionSheetTrashClicked -> {
+                trashMedia(action.result)
+            }
         }
     }
+
+    private fun trashMedia(result: ActivityResultLauncher<IntentSenderRequest>) =
+        viewModelScope.launch {
+            val selectedMediaList = uiState.value.selectedMediaList
+            repository.trashMedia(
+                mediaList = selectedMediaList,
+                trash = true,
+                result = result
+            )
+            removeMediaFromPagingList()
+            updateAllIsSelectedState(false)
+        }
+
 
     private fun copyMediaToPath(path: String) = viewModelScope.launch {
         val selectedMedia = uiState.value.selectedMediaList
@@ -315,6 +333,9 @@ sealed interface AlbumDetailScreenUiAction {
     data object OnSelectionSheetCopyClicked : AlbumDetailScreenUiAction
     data class OnAlbumPathSelected(val path: String) : AlbumDetailScreenUiAction
     data object OnSelectionSheetMoveClicked : AlbumDetailScreenUiAction
+    data class OnSelectionSheetTrashClicked(val result: ActivityResultLauncher<IntentSenderRequest>) :
+        AlbumDetailScreenUiAction
+
     data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) :
         AlbumDetailScreenUiAction
 }

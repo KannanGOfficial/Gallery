@@ -1,5 +1,7 @@
 package com.kannan.gallery.data.contentResolver.dataSource
 
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import com.kannan.gallery.data.contentResolver.models.AlbumCR
 import com.kannan.gallery.data.contentResolver.models.MediaCR
 import com.kannan.gallery.domain.model.Media
@@ -25,4 +27,21 @@ interface ContentResolverDataSource {
         media: Media,
         toPath: String
     ): Boolean
+
+    suspend fun trashMedia(
+        mediaList: List<Media>,
+        trash: Boolean,
+        result: ActivityResultLauncher<IntentSenderRequest>
+    )
+
+    suspend fun deleteMedia(
+        mediaList: List<Media>,
+        result: ActivityResultLauncher<IntentSenderRequest>
+    )
+
+    suspend fun toggleFavorite(
+        mediaList: List<Media>,
+        favorite: Boolean,
+        result: ActivityResultLauncher<IntentSenderRequest>
+    )
 }

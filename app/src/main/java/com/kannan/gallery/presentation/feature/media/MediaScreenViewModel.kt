@@ -1,9 +1,12 @@
 package com.kannan.gallery.presentation.feature.media
 
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.kannan.gallery.domain.GalleryRepository
@@ -191,8 +194,46 @@ class MediaScreenViewModel @Inject constructor(
             is MediaScreenUiAction.OnSelectedMediaListChanged -> {
                 updateSelectedMediaList(action.selectedMediaList)
             }
+
+            is MediaScreenUiAction.OnSelectionSheetTrashClicked -> {
+                trashMedia(action.result)
+            }
         }
     }
+
+    private fun trashMedia(result: ActivityResultLauncher<IntentSenderRequest>) =
+        viewModelScope.launch {
+            val selectedMediaList = uiState.value.selectedMediaList
+            repository.trashMedia(
+                mediaList = selectedMediaList,
+                trash = true,
+                result = result
+            )
+            removeMediaFromPagingList()
+            updateAllIsSelectedState(false)
+        }
+
+    private fun removeMediaFromPagingList() {
+        uiState.value.selectedMediaList.forEach { media ->
+            removeMediaFromList(media.id)
+        }
+    }
+
+    private fun removeMediaFromList(mediaId: Long) {
+        val newData = mediaListPagedStream.value.filter { it.id != mediaId }
+        updateMediaListPaged(newData)
+    }
+
+    private fun toggleFavorite(result: ActivityResultLauncher<IntentSenderRequest>) =
+        viewModelScope.launch {
+            val selectedMediaList = uiState.value.selectedMediaList
+            repository.toggleFavorite(
+                mediaList = selectedMediaList,
+                favorite = true,
+                result = result
+            )
+            updateAllIsSelectedState(false)
+        }
 
     private fun copyMediaToPath(path: String) = viewModelScope.launch {
         val selectedMedia = uiState.value.selectedMediaList
@@ -332,6 +373,8 @@ sealed interface MediaScreenUiAction {
     data object OnSelectionSheetCopyClicked : MediaScreenUiAction
     data object OnAlbumBottomSheetDismissed : MediaScreenUiAction
     data object OnSelectionSheetMoveClicked : MediaScreenUiAction
+    data class OnSelectionSheetTrashClicked(val result: ActivityResultLauncher<IntentSenderRequest>) :
+        MediaScreenUiAction
     data class OnAlbumPathSelected(val path: String) : MediaScreenUiAction
     data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) : MediaScreenUiAction
 }

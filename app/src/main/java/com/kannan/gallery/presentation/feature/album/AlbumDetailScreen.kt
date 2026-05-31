@@ -93,6 +93,9 @@ fun SharedTransitionScope.AlbumDetailScreen(
                         },
                         onSelectionSheetCopyClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetCopyClicked) },
                         onSelectionSheetCloseClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetCloseClicked) },
+                        onSelectionSheetTrashClicked = {
+                            uiAction(AlbumDetailScreenUiAction.OnSelectionSheetTrashClicked(it))
+                        },
                         onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
                         animatedVisibilityScope = this@AnimatedContent,
                         lazyPagingUiModel = lazyPagingUiModel,
