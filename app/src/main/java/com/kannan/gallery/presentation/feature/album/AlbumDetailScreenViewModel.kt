@@ -1,11 +1,13 @@
 package com.kannan.gallery.presentation.feature.album
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.kannan.gallery.domain.GalleryRepository
@@ -48,8 +50,9 @@ class AlbumDetailScreenViewModel @Inject constructor(
     private val _uiEvent = Channel<AlbumDetailScreenUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
+    val albumDetailScreen = savedStateHandle.toRoute<NavigationScreen.AlbumDetailScreen>()
+
     init {
-        val albumDetailScreen = savedStateHandle.toRoute<NavigationScreen.AlbumDetailScreen>()
 
         updateAlbumName(albumDetailScreen.albumName)
         observeAndUpdateMediaListUiModel()
@@ -70,6 +73,7 @@ class AlbumDetailScreenViewModel @Inject constructor(
             .map { it.mapAsMediaUiModelItem() }
             .map { it.insertSeparators(generator = ::insertLineSeparator) }
             .onEach {
+                Log.d("AlbumDetailScreenViewModel", "observeAndUpdateMediaListUiModel: ${it}")
                 updateMediaListUiModel(it)
             }
             .launchIn(viewModelScope)
@@ -79,6 +83,10 @@ class AlbumDetailScreenViewModel @Inject constructor(
         repository.getMediaByAlbumName(albumId)
             .cachedIn(viewModelScope)
             .onEach {
+                Log.d(
+                    "AlbumDetailScreenViewModel",
+                    "observeAndUpdateMediaList: ${it.map { data -> data.id }}"
+                )
                 updateMediaList(it)
             }.launchIn(viewModelScope)
     }
@@ -191,8 +199,15 @@ class AlbumDetailScreenViewModel @Inject constructor(
                 toPath = path
             )
         }
+        removeMediaFromPagingList()
         updateShouldShowAlbumBottomSheet(false)
         updateAllIsSelectedState(false)
+    }
+
+    private fun removeMediaFromPagingList() {
+        uiState.value.selectedMediaList.forEach { media ->
+            removeMediaFromList(media.id)
+        }
     }
 
     private fun updateIsSelectedState(id: Long, isSelected: Boolean) {
@@ -202,6 +217,11 @@ class AlbumDetailScreenViewModel @Inject constructor(
             else
                 it
         }
+        updateMediaList(newData)
+    }
+
+    private fun removeMediaFromList(mediaId: Long) {
+        val newData = mediaListPagedStream.value.filter { it.id != mediaId }
         updateMediaList(newData)
     }
 
