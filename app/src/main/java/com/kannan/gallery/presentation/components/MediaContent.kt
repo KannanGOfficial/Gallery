@@ -13,6 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,8 +25,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kannan.gallery.domain.model.Media
-import com.kannan.gallery.presentation.feature.media.components.Thumbnail
+import com.kannan.gallery.presentation.feature.media.components.ZoomableImage
 import com.kannan.gallery.ui.theme.GalleryTheme
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -33,6 +39,20 @@ fun SharedTransitionScope.MediaContent(
     onBackPressed: (Int) -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
+    val zoomedPageIndex = remember { mutableStateOf<Int?>(null) }
+
+    var isTransitionComplete by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        // Wait for the enter transition to finish
+        animatedVisibilityScope.transition.apply {
+            // suspend until transition reaches its target state
+            while (currentState != targetState) {
+                awaitFrame()
+            }
+        }
+        isTransitionComplete = true
+    }
 
     val pagerState = rememberPagerState(
         initialPage = initialPagerPosition,
@@ -45,6 +65,7 @@ fun SharedTransitionScope.MediaContent(
 
     HorizontalPager(
         state = pagerState,
+        userScrollEnabled = zoomedPageIndex.value == null,
         modifier = modifier
             .fillMaxSize()
             .background(Color.Black)
@@ -53,17 +74,20 @@ fun SharedTransitionScope.MediaContent(
         val data = lazyPagingItems[pageNumber]
 
         data?.let {
-            Thumbnail(
-                data = data.uri,
-                contentDescription = data.uri,
-                crossFade = true,
+
+            ZoomableImage(
+                isTransitionComplete = isTransitionComplete,
+                uri = data.uri,
+                onScaleChanged = { scale ->
+                    zoomedPageIndex.value = if (scale > 1f) pageNumber else null
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .sharedBounds(
-                        sharedContentState = rememberSharedContentState(key = "image/ ${data.uniqueId}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-                    )
+                /* .sharedBounds(
+                     sharedContentState = rememberSharedContentState(key = "image/ ${data.uniqueId}"),
+                     animatedVisibilityScope = animatedVisibilityScope,
+                     resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                 )*/
             )
         }
     }
