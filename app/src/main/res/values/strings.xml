@@ -8,4 +8,6 @@
     <string name="share">Share</string>
     <string name="trash">Trash</string>
     <string name="favourite">Favourite</string>
+    <string name="trashed">Trashed</string>
+    <string name="favourites">Favourites</string>
 </resources>

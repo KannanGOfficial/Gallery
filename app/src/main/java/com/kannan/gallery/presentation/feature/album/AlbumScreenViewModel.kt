@@ -42,8 +42,8 @@ class AlbumScreenViewModel @Inject constructor(
             is AlbumScreenUiAction.OnAlbumClicked -> sendEvent(
                 AlbumScreenUiEvent.NavigateTo(
                     NavigationScreen.AlbumDetailScreen(
-                        albumName = action.album.name,
-                        albumId = action.album.id
+                        albumName = action.name,
+                        albumId = action.id
                     )
                 )
             )
@@ -68,7 +68,7 @@ data class AlbumScreenUiState(
 )
 
 sealed interface AlbumScreenUiAction {
-    data class OnAlbumClicked(val album: Album) : AlbumScreenUiAction
+    data class OnAlbumClicked(val id: Long, val name: String) : AlbumScreenUiAction
 }
 
 sealed interface AlbumScreenUiEvent {

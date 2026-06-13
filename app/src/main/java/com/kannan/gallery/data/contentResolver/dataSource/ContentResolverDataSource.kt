@@ -44,4 +44,9 @@ interface ContentResolverDataSource {
         favorite: Boolean,
         result: ActivityResultLauncher<IntentSenderRequest>
     )
+
+    suspend fun getTrashedMedia(pageNumber: Int, pageSize: Int): List<MediaCR>
+
+    suspend fun getFavouriteMedia(pageNumber: Int, pageSize: Int): List<MediaCR>
+
 }

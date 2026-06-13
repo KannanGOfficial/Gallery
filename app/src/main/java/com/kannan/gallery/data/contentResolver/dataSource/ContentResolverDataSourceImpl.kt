@@ -5,7 +5,9 @@ import androidx.activity.result.IntentSenderRequest
 import com.kannan.gallery.data.contentResolver.CopyMedia
 import com.kannan.gallery.data.contentResolver.DeleteMedia
 import com.kannan.gallery.data.contentResolver.GetAllAlbum
+import com.kannan.gallery.data.contentResolver.GetAllFavouriteMedia
 import com.kannan.gallery.data.contentResolver.GetAllMedia
+import com.kannan.gallery.data.contentResolver.GetAllTrashedMedia
 import com.kannan.gallery.data.contentResolver.GetMediaByAlbumName
 import com.kannan.gallery.data.contentResolver.MoveMedia
 import com.kannan.gallery.data.contentResolver.ToggleFavorites
@@ -24,7 +26,9 @@ class ContentResolverDataSourceImpl @Inject constructor(
     private val moveMedia: MoveMedia,
     private val trashMedia: TrashMedia,
     private val deleteMedia: DeleteMedia,
-    private val toggleFavorites: ToggleFavorites
+    private val toggleFavorites: ToggleFavorites,
+    private val getAllTrashedMedia: GetAllTrashedMedia,
+    private val getAllFavouriteMedia: GetAllFavouriteMedia
 ) : ContentResolverDataSource {
 
     override suspend fun getAllMedia(pageNumber: Int, pageSize: Int): List<MediaCR> {
@@ -88,4 +92,17 @@ class ContentResolverDataSourceImpl @Inject constructor(
         result = result
     )
 
+    override suspend fun getTrashedMedia(
+        pageNumber: Int,
+        pageSize: Int
+    ): List<MediaCR> {
+        return getAllTrashedMedia.invoke(pageNumber = pageNumber, pageSize = pageSize)
+    }
+
+    override suspend fun getFavouriteMedia(
+        pageNumber: Int,
+        pageSize: Int
+    ): List<MediaCR> {
+        return getAllFavouriteMedia.invoke(pageNumber = pageNumber, pageSize = pageSize)
+    }
 }

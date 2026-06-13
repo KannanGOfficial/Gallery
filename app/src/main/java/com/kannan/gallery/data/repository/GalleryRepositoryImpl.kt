@@ -13,7 +13,10 @@ import com.kannan.gallery.data.contentResolver.models.MediaCR
 import com.kannan.gallery.data.contentResolver.models.toAlbum
 import com.kannan.gallery.data.contentResolver.models.toMedia
 import com.kannan.gallery.data.pagingSource.GetAllMediaPagingSource
+import com.kannan.gallery.data.pagingSource.GetFavouriteMediaPagingSource
 import com.kannan.gallery.data.pagingSource.GetMediaByAlbumNamePagingSource
+import com.kannan.gallery.data.pagingSource.GetTrashedMediaPagingSource
+import com.kannan.gallery.domain.Const
 import com.kannan.gallery.domain.GalleryRepository
 import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.domain.model.Media
@@ -47,16 +50,20 @@ class GalleryRepositoryImpl @Inject constructor(
         return contentResolverDataSource.getAllAlbum().map(AlbumCR::toAlbum)
     }
 
-    override fun getMediaByAlbumName(albumId: Long): Flow<PagingData<Media>> {
+    override fun getMediaByAlbumName(albumName: String, albumId: Long): Flow<PagingData<Media>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 10
             ),
             pagingSourceFactory = {
-                GetMediaByAlbumNamePagingSource(
-                    contentResolverDataSource = contentResolverDataSource,
-                    albumId = albumId
-                )
+                when (albumName) {
+                    Const.TRASHED -> GetTrashedMediaPagingSource(contentResolverDataSource)
+                    Const.FAVORITE -> GetFavouriteMediaPagingSource(contentResolverDataSource)
+                    else -> GetMediaByAlbumNamePagingSource(
+                        contentResolverDataSource = contentResolverDataSource,
+                        albumId = albumId
+                    )
+                }
             }
         ).flow.map {
             it.map(MediaCR::toMedia)

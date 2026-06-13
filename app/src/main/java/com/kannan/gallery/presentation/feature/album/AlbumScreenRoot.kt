@@ -25,8 +25,22 @@ fun AlbumScreenRoot(
 
     AlbumScreen(
         albumList = uiState.albumList,
+        shouldShowTrashedAndFavourites = true,
         onAlbumClicked = {
-            uiAction(AlbumScreenUiAction.OnAlbumClicked(it))
+            uiAction(
+                AlbumScreenUiAction.OnAlbumClicked(
+                    id = it.id,
+                    name = it.name
+                )
+            )
+        },
+        onSectionClicked = {
+            uiAction(
+                AlbumScreenUiAction.OnAlbumClicked(
+                    id = 0L,
+                    name = it
+                )
+            )
         }
     )
 }

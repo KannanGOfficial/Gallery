@@ -58,7 +58,7 @@ class AlbumDetailScreenViewModel @Inject constructor(
 
         updateAlbumName(albumDetailScreen.albumName)
         observeAndUpdateMediaListUiModel()
-        observeAndUpdateMediaList(albumDetailScreen.albumId)
+        observeAndUpdateMediaList(albumDetailScreen)
         observeAndUpdateIsInMediaSelectionMode()
         getAlbumList()
     }
@@ -81,8 +81,8 @@ class AlbumDetailScreenViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    private fun observeAndUpdateMediaList(albumId: Long) {
-        repository.getMediaByAlbumName(albumId)
+    private fun observeAndUpdateMediaList(screen: NavigationScreen.AlbumDetailScreen) {
+        repository.getMediaByAlbumName(screen.albumName, screen.albumId)
             .cachedIn(viewModelScope)
             .onEach {
                 Log.d(
