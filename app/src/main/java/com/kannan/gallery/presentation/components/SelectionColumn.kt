@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -28,10 +29,9 @@ fun SelectionColumn(
     imageVector: ImageVector,
     title: String,
     modifier: Modifier = Modifier,
+    tintColor: Color = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit
 ) {
-    val tintColor = MaterialTheme.colorScheme.onSurface
-
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))

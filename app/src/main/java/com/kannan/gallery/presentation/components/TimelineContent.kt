@@ -1,8 +1,6 @@
 package com.kannan.gallery.presentation.components
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -19,7 +17,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,13 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kannan.gallery.domain.model.Album
 import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.domain.model.MediaUiModel
-import com.kannan.gallery.presentation.feature.album.components.AlbumScreen
 import com.kannan.gallery.presentation.feature.media.components.Thumbnail
 import com.kannan.gallery.ui.theme.GalleryTheme
-import com.kannan.gallery.utils.ext.rememberActivityResult
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
@@ -51,16 +45,11 @@ fun SharedTransitionScope.TimelineContent(
     onSelectionSheetCloseClicked: () -> Unit,
     onSelectionSheetCopyClicked: () -> Unit,
     onSelectionSheetMoveClicked: () -> Unit,
-    onSelectionSheetTrashClicked: (result: ActivityResultLauncher<IntentSenderRequest>) -> Unit,
+    onSelectionSheetTrashClicked: () -> Unit,
     isInMediaSelectionMode: Boolean,
     selectedItemCount: Int,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    albumList: List<Album>,
-    shouldShowAlbumBottomSheet: Boolean,
-    onAlbumBottomSheetDismissed: () -> Unit,
-    onAlbumPathSelected: (String) -> Unit
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    val result = rememberActivityResult()
 
     BackHandler(onBack = onBackPressed)
 
@@ -138,21 +127,8 @@ fun SharedTransitionScope.TimelineContent(
                 onMoveButtonClick = onSelectionSheetMoveClicked,
                 onCloseButtonClick = onSelectionSheetCloseClicked,
                 onShareButtonClick = {},
-                onTrashButtonClick = { onSelectionSheetTrashClicked(result) },
+                onTrashButtonClick = onSelectionSheetTrashClicked,
             )
-        }
-
-        if (shouldShowAlbumBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = onAlbumBottomSheetDismissed
-            ) {
-                AlbumScreen(
-                    albumList = albumList,
-                    onAlbumClicked = {
-                        onAlbumPathSelected(it.relativePath)
-                    }
-                )
-            }
         }
     }
 
@@ -180,10 +156,6 @@ private fun TimelineContentPreview() {
                     onSelectionSheetCopyClicked = {},
                     onSelectionSheetMoveClicked = {},
                     onSelectionSheetTrashClicked = {},
-                    albumList = emptyList(),
-                    shouldShowAlbumBottomSheet = false,
-                    onAlbumBottomSheetDismissed = {},
-                    onAlbumPathSelected = {}
                 )
             }
         }

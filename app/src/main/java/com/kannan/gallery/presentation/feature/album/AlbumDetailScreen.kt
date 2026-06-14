@@ -8,6 +8,8 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -21,14 +23,16 @@ import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
 import com.kannan.gallery.presentation.feature.album.components.AlbumDetailTopBar
+import com.kannan.gallery.presentation.feature.album.components.AlbumScreen
 import com.kannan.gallery.presentation.feature.media.ScreenContentType
 import com.kannan.gallery.ui.theme.GalleryTheme
 import com.kannan.gallery.utils.Animation
 import com.kannan.gallery.utils.ext.CollectAsEffect
+import com.kannan.gallery.utils.ext.rememberActivityResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SharedTransitionScope.AlbumDetailScreen(
     modifier: Modifier = Modifier,
@@ -56,6 +60,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
         uiAction(AlbumDetailScreenUiAction.OnSelectedMediaListChanged(selectedMedia))
         uiAction(AlbumDetailScreenUiAction.OnSelectedItemCountChanged(selectedMediaCount))
     }
+    val result = rememberActivityResult()
 
     AnimatedContent(
         uiState.screenContentType,
@@ -91,10 +96,10 @@ fun SharedTransitionScope.AlbumDetailScreen(
                                 )
                             )
                         },
-                        onSelectionSheetCopyClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetCopyClicked) },
+                        onSelectionSheetCopyClicked = { uiAction(AlbumDetailScreenUiAction.OnCopyClicked.SelectionSheet) },
                         onSelectionSheetCloseClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetCloseClicked) },
                         onSelectionSheetTrashClicked = {
-                            uiAction(AlbumDetailScreenUiAction.OnSelectionSheetTrashClicked(it))
+                            uiAction(AlbumDetailScreenUiAction.OnTrashClicked.SelectionSheet(result))
                         },
                         onBackPressed = { uiAction.invoke(AlbumDetailScreenUiAction.OnTimelineContentBackPressed) },
                         animatedVisibilityScope = this@AnimatedContent,
@@ -103,17 +108,7 @@ fun SharedTransitionScope.AlbumDetailScreen(
                         lazyGridState = lazyGridState,
                         isInMediaSelectionMode = uiState.isInMediaSelectionMode,
                         selectedItemCount = uiState.selectedMediaCount,
-                        albumList = uiState.albumList,
-                        shouldShowAlbumBottomSheet = uiState.shouldShowAlbumBottomSheet,
-                        onAlbumBottomSheetDismissed = { uiAction.invoke(AlbumDetailScreenUiAction.OnAlbumBottomSheetDismissed) },
-                        onAlbumPathSelected = {
-                            uiAction(
-                                AlbumDetailScreenUiAction.OnAlbumPathSelected(
-                                    it
-                                )
-                            )
-                        },
-                        onSelectionSheetMoveClicked = { uiAction(AlbumDetailScreenUiAction.OnSelectionSheetMoveClicked) }
+                        onSelectionSheetMoveClicked = { uiAction(AlbumDetailScreenUiAction.OnMoveClicked.SelectionSheet) }
                     )
                 }
             }
@@ -128,14 +123,37 @@ fun SharedTransitionScope.AlbumDetailScreen(
                             )
                         )
                     },
+                    onCopyClicked = { uiAction(AlbumDetailScreenUiAction.OnCopyClicked.CopyAction(it)) },
+                    onMoveClicked = { uiAction(AlbumDetailScreenUiAction.OnMoveClicked.MoveAction(it)) },
+                    onShareClicked = {},
+                    onTrashClicked = {
+                        uiAction(
+                            AlbumDetailScreenUiAction.OnTrashClicked.TrashAction(
+                                result,
+                                it
+                            )
+                        )
+                    },
                     animatedVisibilityScope = this,
                     lazyPagingItems = lazyPagingItems,
                 )
             }
         }
+        if (uiState.shouldShowAlbumBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    uiAction(AlbumDetailScreenUiAction.OnAlbumBottomSheetDismissed)
+                }
+            ) {
+                AlbumScreen(
+                    albumList = uiState.albumList,
+                    onAlbumClicked = {
+                        uiAction(AlbumDetailScreenUiAction.OnAlbumPathSelected(it.relativePath))
+                    }
+                )
+            }
+        }
     }
-
-
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)

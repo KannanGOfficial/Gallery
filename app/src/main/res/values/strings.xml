@@ -10,4 +10,6 @@
     <string name="favourite">Favourite</string>
     <string name="trashed">Trashed</string>
     <string name="favourites">Favourites</string>
+    <string name="restore">Restore</string>
+    <string name="go_back">Go back</string>
 </resources>

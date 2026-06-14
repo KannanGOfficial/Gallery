@@ -5,6 +5,8 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -15,12 +17,14 @@ import com.kannan.gallery.domain.model.Media
 import com.kannan.gallery.domain.model.MediaUiModel
 import com.kannan.gallery.presentation.components.MediaContent
 import com.kannan.gallery.presentation.components.TimelineContent
+import com.kannan.gallery.presentation.feature.album.components.AlbumScreen
 import com.kannan.gallery.utils.Animation
 import com.kannan.gallery.utils.ext.CollectAsEffect
+import com.kannan.gallery.utils.ext.rememberActivityResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SharedTransitionScope.MediaScreen(
     modifier: Modifier = Modifier,
@@ -46,6 +50,7 @@ fun SharedTransitionScope.MediaScreen(
     val lazyPagingItems = mediaListPagedStream.collectAsLazyPagingItems()
     val lazyPagingUiModel = mediaListUiModel.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
+    val result = rememberActivityResult()
 
     LaunchedEffect(lazyPagingItems.itemSnapshotList) {
         val selectedMediaCount = lazyPagingItems.itemSnapshotList.count { it?.isSelected == true }
@@ -87,19 +92,15 @@ fun SharedTransitionScope.MediaScreen(
                         )
                     },
                     onSelectionSheetCopyClicked = {
-                        uiAction(MediaScreenUiAction.OnSelectionSheetCopyClicked)
+                        uiAction(MediaScreenUiAction.OnCopyClicked.SelectionSheet)
                     },
                     onSelectionSheetCloseClicked = {
                         uiAction(MediaScreenUiAction.OnSelectionSheetCloseClicked)
                     },
                     onSelectionSheetTrashClicked = {
-                        uiAction(MediaScreenUiAction.OnSelectionSheetTrashClicked(it))
+                        uiAction(MediaScreenUiAction.OnTrashClicked.SelectionSheet(result))
                     },
-                    onSelectionSheetMoveClicked = { uiAction(MediaScreenUiAction.OnSelectionSheetMoveClicked) },
-                    albumList = uiState.albumList,
-                    shouldShowAlbumBottomSheet = uiState.shouldShowAlbumBottomSheet,
-                    onAlbumBottomSheetDismissed = { uiAction(MediaScreenUiAction.OnAlbumBottomSheetDismissed) },
-                    onAlbumPathSelected = { uiAction(MediaScreenUiAction.OnAlbumPathSelected(it)) }
+                    onSelectionSheetMoveClicked = { uiAction(MediaScreenUiAction.OnMoveClicked.SelectionSheet) },
                 )
             }
 
@@ -114,8 +115,34 @@ fun SharedTransitionScope.MediaScreen(
                             )
                         )
                     },
+                    onCopyClicked = { uiAction(MediaScreenUiAction.OnCopyClicked.CopyAction(it)) },
+                    onMoveClicked = { uiAction(MediaScreenUiAction.OnMoveClicked.MoveAction(it)) },
+                    onShareClicked = { },
+                    onTrashClicked = {
+                        uiAction(
+                            MediaScreenUiAction.OnTrashClicked.TrashAction(
+                                result,
+                                it
+                            )
+                        )
+                    },
                     animatedVisibilityScope = this,
                     lazyPagingItems = lazyPagingItems,
+                )
+            }
+        }
+
+        if (uiState.shouldShowAlbumBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    uiAction(MediaScreenUiAction.OnAlbumBottomSheetDismissed)
+                }
+            ) {
+                AlbumScreen(
+                    albumList = uiState.albumList,
+                    onAlbumClicked = {
+                        uiAction(MediaScreenUiAction.OnAlbumPathSelected(it.relativePath))
+                    }
                 )
             }
         }

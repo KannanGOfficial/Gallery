@@ -163,17 +163,51 @@ class MediaScreenViewModel @Inject constructor(
                 updateAllIsSelectedState(false)
             }
 
-            MediaScreenUiAction.OnSelectionSheetCopyClicked -> {
+            MediaScreenUiAction.OnCopyClicked.SelectionSheet -> {
                 updateMediaActionType(MediaActionType.COPY)
                 updateShouldShowAlbumBottomSheet(true)
             }
 
-            MediaScreenUiAction.OnSelectionSheetMoveClicked -> {
+            is MediaScreenUiAction.OnCopyClicked.CopyAction -> {
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
+                updateMediaActionType(MediaActionType.COPY)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
+            MediaScreenUiAction.OnMoveClicked.SelectionSheet -> {
                 updateMediaActionType(MediaActionType.MOVE)
                 updateShouldShowAlbumBottomSheet(true)
             }
 
+            is MediaScreenUiAction.OnMoveClicked.MoveAction -> {
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
+                updateMediaActionType(MediaActionType.MOVE)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
+
+            is MediaScreenUiAction.OnTrashClicked.SelectionSheet -> {
+                trashMedia(action.result)
+            }
+
+            is MediaScreenUiAction.OnTrashClicked.TrashAction -> {
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
+                trashMedia(action.result)
+            }
+
             MediaScreenUiAction.OnAlbumBottomSheetDismissed -> {
+                if (uiState.value.screenContentType == ScreenContentType.MEDIA) {
+                    updateAllIsSelectedState(false)
+                }
                 updateShouldShowAlbumBottomSheet(false)
             }
 
@@ -193,10 +227,6 @@ class MediaScreenViewModel @Inject constructor(
 
             is MediaScreenUiAction.OnSelectedMediaListChanged -> {
                 updateSelectedMediaList(action.selectedMediaList)
-            }
-
-            is MediaScreenUiAction.OnSelectionSheetTrashClicked -> {
-                trashMedia(action.result)
             }
         }
     }
@@ -369,12 +399,28 @@ sealed interface MediaScreenUiAction {
     data class OnMediaContentBackPressed(val currentMediaPosition: Int) : MediaScreenUiAction
     data class OnSelectedItemCountChanged(val selectedMediaCount: Int) : MediaScreenUiAction
     data class OnNewMediaListPaged(val mediaList: Set<Media>) : MediaScreenUiAction
+    sealed interface OnCopyClicked : MediaScreenUiAction {
+        data object SelectionSheet : OnCopyClicked
+        data class CopyAction(val media: Media) : OnCopyClicked
+    }
+
+    sealed interface OnMoveClicked : MediaScreenUiAction {
+        data object SelectionSheet : OnMoveClicked
+        data class MoveAction(val media: Media) : OnMoveClicked
+    }
+
+    sealed interface OnTrashClicked : MediaScreenUiAction {
+        data class SelectionSheet(val result: ActivityResultLauncher<IntentSenderRequest>) :
+            OnTrashClicked
+
+        data class TrashAction(
+            val result: ActivityResultLauncher<IntentSenderRequest>,
+            val media: Media
+        ) : OnTrashClicked
+    }
+
     data object OnSelectionSheetCloseClicked : MediaScreenUiAction
-    data object OnSelectionSheetCopyClicked : MediaScreenUiAction
     data object OnAlbumBottomSheetDismissed : MediaScreenUiAction
-    data object OnSelectionSheetMoveClicked : MediaScreenUiAction
-    data class OnSelectionSheetTrashClicked(val result: ActivityResultLauncher<IntentSenderRequest>) :
-        MediaScreenUiAction
     data class OnAlbumPathSelected(val path: String) : MediaScreenUiAction
     data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) : MediaScreenUiAction
 }

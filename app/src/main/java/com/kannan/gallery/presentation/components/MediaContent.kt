@@ -8,6 +8,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
@@ -37,9 +38,15 @@ fun SharedTransitionScope.MediaContent(
     initialPagerPosition: Int,
     lazyPagingItems: LazyPagingItems<Media>,
     onBackPressed: (Int) -> Unit,
-    animatedVisibilityScope: AnimatedVisibilityScope
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onShareClicked: (Media) -> Unit,
+    onCopyClicked: (Media) -> Unit,
+    onMoveClicked: (Media) -> Unit,
+    onTrashClicked: (Media) -> Unit,
 ) {
     val zoomedPageIndex = remember { mutableStateOf<Int?>(null) }
+
+    val showUi = remember { mutableStateOf(false) }
 
     var isTransitionComplete by remember { mutableStateOf(false) }
 
@@ -74,21 +81,43 @@ fun SharedTransitionScope.MediaContent(
         val data = lazyPagingItems[pageNumber]
 
         data?.let {
-
-            ZoomableImage(
-                isTransitionComplete = isTransitionComplete,
-                uri = data.uri,
-                onScaleChanged = { scale ->
-                    zoomedPageIndex.value = if (scale > 1f) pageNumber else null
-                },
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                /* .sharedBounds(
-                     sharedContentState = rememberSharedContentState(key = "image/ ${data.uniqueId}"),
-                     animatedVisibilityScope = animatedVisibilityScope,
-                     resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-                 )*/
-            )
+                    .background(Color.Black)
+                    .fillMaxSize()
+            ) {
+                ZoomableImage(
+                    isTransitionComplete = isTransitionComplete,
+                    uri = data.uri,
+                    onScaleChanged = { scale ->
+                        zoomedPageIndex.value = if (scale > 1f) pageNumber else null
+                    },
+                    onDismiss = {
+                        showUi.value = !showUi.value
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                    /* .sharedBounds(
+                 sharedContentState = rememberSharedContentState(key = "image/ ${data.uniqueId}"),
+                 animatedVisibilityScope = animatedVisibilityScope,
+                 resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+             )*/
+                )
+
+                MediaViewTopBar(
+                    showUI = showUi.value,
+                    onBackPressed = { onBackPressed(pageNumber) },
+                    currentDate = data.dateModified,
+                )
+
+                MediaViewBottomBar(
+                    showUI = showUi.value,
+                    onShareButtonClick = { onShareClicked(it) },
+                    onCopyButtonClick = { onCopyClicked(it) },
+                    onMoveButtonClick = { onMoveClicked(it) },
+                    onTrashButtonClick = { onTrashClicked(it) }
+                )
+            }
         }
     }
 }
@@ -106,6 +135,10 @@ private fun DetailContentPreview() {
                     initialPagerPosition = 0,
                     animatedVisibilityScope = this,
                     lazyPagingItems = flowOf(PagingData.empty<Media>()).collectAsLazyPagingItems(),
+                    onTrashClicked = {},
+                    onCopyClicked = {},
+                    onShareClicked = {},
+                    onMoveClicked = {}
                 )
             }
         }

@@ -143,6 +143,9 @@ class AlbumDetailScreenViewModel @Inject constructor(
             }
 
             AlbumDetailScreenUiAction.OnAlbumBottomSheetDismissed -> {
+                if (uiState.value.screenContentType == ScreenContentType.MEDIA) {
+                    updateAllIsSelectedState(false)
+                }
                 updateShouldShowAlbumBottomSheet(false)
             }
 
@@ -150,15 +153,34 @@ class AlbumDetailScreenViewModel @Inject constructor(
                 updateAllIsSelectedState(false)
             }
 
-            AlbumDetailScreenUiAction.OnSelectionSheetCopyClicked -> {
+            AlbumDetailScreenUiAction.OnCopyClicked.SelectionSheet -> {
                 updateMediaActionType(MediaActionType.COPY)
                 updateShouldShowAlbumBottomSheet(true)
             }
 
-            AlbumDetailScreenUiAction.OnSelectionSheetMoveClicked -> {
+            is AlbumDetailScreenUiAction.OnCopyClicked.CopyAction -> {
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
+                updateMediaActionType(MediaActionType.COPY)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
+            AlbumDetailScreenUiAction.OnMoveClicked.SelectionSheet -> {
                 updateMediaActionType(MediaActionType.MOVE)
                 updateShouldShowAlbumBottomSheet(true)
             }
+
+            is AlbumDetailScreenUiAction.OnMoveClicked.MoveAction -> {
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
+                updateMediaActionType(MediaActionType.MOVE)
+                updateShouldShowAlbumBottomSheet(true)
+            }
+
 
             is AlbumDetailScreenUiAction.OnAlbumPathSelected -> {
                 when (uiState.value.mediaActionType) {
@@ -178,7 +200,15 @@ class AlbumDetailScreenViewModel @Inject constructor(
                 updateSelectedMediaList(action.selectedMediaList)
             }
 
-            is AlbumDetailScreenUiAction.OnSelectionSheetTrashClicked -> {
+            is AlbumDetailScreenUiAction.OnTrashClicked.SelectionSheet -> {
+                trashMedia(action.result)
+            }
+
+            is AlbumDetailScreenUiAction.OnTrashClicked.TrashAction -> {
+                updateIsSelectedState(
+                    id = action.media.id,
+                    isSelected = true
+                )
                 trashMedia(action.result)
             }
         }
@@ -330,14 +360,29 @@ sealed interface AlbumDetailScreenUiAction {
     data class OnSelectedItemCountChanged(val selectedMediaCount: Int) : AlbumDetailScreenUiAction
     data object OnAlbumBottomSheetDismissed : AlbumDetailScreenUiAction
     data object OnSelectionSheetCloseClicked : AlbumDetailScreenUiAction
-    data object OnSelectionSheetCopyClicked : AlbumDetailScreenUiAction
     data class OnAlbumPathSelected(val path: String) : AlbumDetailScreenUiAction
-    data object OnSelectionSheetMoveClicked : AlbumDetailScreenUiAction
-    data class OnSelectionSheetTrashClicked(val result: ActivityResultLauncher<IntentSenderRequest>) :
-        AlbumDetailScreenUiAction
-
     data class OnSelectedMediaListChanged(val selectedMediaList: List<Media>) :
         AlbumDetailScreenUiAction
+
+    sealed interface OnCopyClicked : AlbumDetailScreenUiAction {
+        data object SelectionSheet : OnCopyClicked
+        data class CopyAction(val media: Media) : OnCopyClicked
+    }
+
+    sealed interface OnMoveClicked : AlbumDetailScreenUiAction {
+        data object SelectionSheet : OnMoveClicked
+        data class MoveAction(val media: Media) : OnMoveClicked
+    }
+
+    sealed interface OnTrashClicked : AlbumDetailScreenUiAction {
+        data class SelectionSheet(val result: ActivityResultLauncher<IntentSenderRequest>) :
+            OnTrashClicked
+
+        data class TrashAction(
+            val result: ActivityResultLauncher<IntentSenderRequest>,
+            val media: Media
+        ) : OnTrashClicked
+    }
 }
 
 sealed interface AlbumDetailScreenUiEvent {
